@@ -1,0 +1,52 @@
+[
+  {
+    "branchName": "London",
+    "accNumber": 1,
+    "balance": "118231.13"
+  },
+  {
+    "branchName": "London",
+    "accNumber": 2,
+    "balance": "100808.03"
+  },
+  {
+    "branchName": "London",
+    "accNumber": 4,
+    "balance": "106503.6"
+  },
+  {
+    "branchName": "London",
+    "accNumber": 5,
+    "balance": "105696.04"
+  },
+  {
+    "branchName": "London",
+    "accNumber": 6,
+    "balance": "107309.23"
+  },
+  {
+    "branchName": "London",
+    "accNumber": 8,
+    "balance": "121267.54"
+  },
+  {
+    "branchName": "London",
+    "accNumber": 9,
+    "balance": "132271.23"
+  },
+  {
+    "branchName": "London",
+    "accNumber": 13,
+    "balance": "112505.84"
+  },
+  {
+    "branchName": "London",
+    "accNumber": 17,
+    "balance": "103356.07"
+  },
+  {
+    "branchName": "London",
+    "accNumber": 18,
+    "balance": "103579.69"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "customerID": 52189,
+    "firstName": "Shawn",
+    "lastName": "Sanders",
+    "income": 13615,
+    "average account balance": 68936.21166666666
+  },
+  {
+    "customerID": 79601,
+    "firstName": "Joe",
+    "lastName": "Sanders",
+    "income": 95144,
+    "average account balance": 58843.438
+  }
+]

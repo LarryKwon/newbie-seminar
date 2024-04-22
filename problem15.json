@@ -1,0 +1,32 @@
+[
+  {
+    "customerID": 44922,
+    "firstName": "Dennis",
+    "lastName": "Flores"
+  },
+  {
+    "customerID": 73386,
+    "firstName": "Arthur",
+    "lastName": "Jones"
+  },
+  {
+    "customerID": 62312,
+    "firstName": "Phyllis",
+    "lastName": "Lopez"
+  },
+  {
+    "customerID": 90667,
+    "firstName": "Carl",
+    "lastName": "Murphy"
+  },
+  {
+    "customerID": 92389,
+    "firstName": "Amy",
+    "lastName": "Ross"
+  },
+  {
+    "customerID": 65441,
+    "firstName": "Arthur",
+    "lastName": "Thompson"
+  }
+]

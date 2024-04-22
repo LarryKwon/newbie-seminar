@@ -1,0 +1,62 @@
+[
+  {
+    "customerID": 11790,
+    "type": "BUS",
+    "accNumber": 150,
+    "balance": "77477.04"
+  },
+  {
+    "customerID": 11790,
+    "type": "SAV",
+    "accNumber": 1,
+    "balance": "118231.13"
+  },
+  {
+    "customerID": 11799,
+    "type": "BUS",
+    "accNumber": 174,
+    "balance": "23535.33"
+  },
+  {
+    "customerID": 13230,
+    "type": "SAV",
+    "accNumber": 137,
+    "balance": "76535.96"
+  },
+  {
+    "customerID": 13697,
+    "type": "SAV",
+    "accNumber": 251,
+    "balance": "33140.3"
+  },
+  {
+    "customerID": 13874,
+    "type": "SAV",
+    "accNumber": 82,
+    "balance": "29525.31"
+  },
+  {
+    "customerID": 14295,
+    "type": "BUS",
+    "accNumber": 106,
+    "balance": "102297.76"
+  },
+  {
+    "customerID": 14295,
+    "type": "BUS",
+    "accNumber": 273,
+    "balance": "65213.27"
+  },
+  {
+    "customerID": 14295,
+    "type": "SAV",
+    "accNumber": 245,
+    "balance": "95413.18"
+  },
+  {
+    "customerID": 16837,
+    "type": "BUS",
+    "accNumber": 197,
+    "balance": "19495.5"
+  }
+]

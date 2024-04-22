@@ -1,0 +1,62 @@
+[
+  {
+    "sin": 49024,
+    "branchName": "Berlin",
+    "salary": 3349,
+    "Salary Diff": "86862"
+  },
+  {
+    "sin": 24469,
+    "branchName": "London",
+    "salary": 13950,
+    "Salary Diff": "85339"
+  },
+  {
+    "sin": 85925,
+    "branchName": "London",
+    "salary": 15370,
+    "Salary Diff": "83919"
+  },
+  {
+    "sin": 49069,
+    "branchName": "Berlin",
+    "salary": 7600,
+    "Salary Diff": "82611"
+  },
+  {
+    "sin": 41545,
+    "branchName": "Berlin",
+    "salary": 9534,
+    "Salary Diff": "80677"
+  },
+  {
+    "sin": 37490,
+    "branchName": "London",
+    "salary": 23082,
+    "Salary Diff": "76207"
+  },
+  {
+    "sin": 24065,
+    "branchName": "London",
+    "salary": 25870,
+    "Salary Diff": "73419"
+  },
+  {
+    "sin": 82464,
+    "branchName": "London",
+    "salary": 28953,
+    "Salary Diff": "70336"
+  },
+  {
+    "sin": 82244,
+    "branchName": "London",
+    "salary": 29009,
+    "Salary Diff": "70280"
+  },
+  {
+    "sin": 96443,
+    "branchName": "Berlin",
+    "salary": 19971,
+    "Salary Diff": "70240"
+  }
+]

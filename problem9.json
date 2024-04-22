@@ -1,0 +1,72 @@
+[
+  {
+    "sin": 31964,
+    "firstName": "Victor",
+    "lastName": "Doom",
+    "salary": 90483,
+    "branchName": "New York"
+  },
+  {
+    "sin": 63963,
+    "firstName": "Cheryl",
+    "lastName": "Thompson",
+    "salary": 71284,
+    "branchName": "Moscow"
+  },
+  {
+    "sin": 55700,
+    "firstName": "Phillip",
+    "lastName": "Edwards",
+    "salary": 99289,
+    "branchName": "London"
+  },
+  {
+    "sin": 51850,
+    "firstName": "Victor",
+    "lastName": "Doom",
+    "salary": 87242,
+    "branchName": "Latveria"
+  },
+  {
+    "sin": 99537,
+    "firstName": "Deborah",
+    "lastName": "Hernandez",
+    "salary": 90211,
+    "branchName": "Berlin"
+  },
+  {
+    "sin": 29474,
+    "firstName": "Amanda",
+    "lastName": "White",
+    "salary": 59360,
+    "branchName": null
+  },
+  {
+    "sin": 81263,
+    "firstName": "Anna",
+    "lastName": "Cooper",
+    "salary": 67275,
+    "branchName": null
+  },
+  {
+    "sin": 73386,
+    "firstName": "Arthur",
+    "lastName": "Jones",
+    "salary": 57935,
+    "branchName": null
+  },
+  {
+    "sin": 86213,
+    "firstName": "Beverly",
+    "lastName": "Martinez",
+    "salary": 85853,
+    "branchName": null
+  },
+  {
+    "sin": 95429,
+    "firstName": "Cheryl",
+    "lastName": "White",
+    "salary": 51003,
+    "branchName": null
+  }
+]

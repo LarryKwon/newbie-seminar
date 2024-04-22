@@ -1,0 +1,62 @@
+[
+  {
+    "customerID": 18166,
+    "income": 84562,
+    "accNumber": 34,
+    "branchNumber": 1
+  },
+  {
+    "customerID": 18166,
+    "income": 84562,
+    "accNumber": 204,
+    "branchNumber": 2
+  },
+  {
+    "customerID": 27954,
+    "income": 94777,
+    "accNumber": 10,
+    "branchNumber": 1
+  },
+  {
+    "customerID": 27954,
+    "income": 94777,
+    "accNumber": 68,
+    "branchNumber": 3
+  },
+  {
+    "customerID": 27954,
+    "income": 94777,
+    "accNumber": 239,
+    "branchNumber": 2
+  },
+  {
+    "customerID": 38351,
+    "income": 86093,
+    "accNumber": 39,
+    "branchNumber": 1
+  },
+  {
+    "customerID": 38351,
+    "income": 86093,
+    "accNumber": 95,
+    "branchNumber": 3
+  },
+  {
+    "customerID": 38351,
+    "income": 86093,
+    "accNumber": 158,
+    "branchNumber": 3
+  },
+  {
+    "customerID": 38351,
+    "income": 86093,
+    "accNumber": 189,
+    "branchNumber": 2
+  },
+  {
+    "customerID": 44922,
+    "income": 84560,
+    "accNumber": 17,
+    "branchNumber": 1
+  }
+]

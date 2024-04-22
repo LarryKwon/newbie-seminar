@@ -1,0 +1,52 @@
+[
+  {
+    "firstName": "Ernest",
+    "lastName": "Adams",
+    "income": 75896
+  },
+  {
+    "firstName": "William",
+    "lastName": "Adams",
+    "income": 77570
+  },
+  {
+    "firstName": "Carol",
+    "lastName": "Alexander",
+    "income": 56145
+  },
+  {
+    "firstName": "Anthony",
+    "lastName": "Bailey",
+    "income": 72328
+  },
+  {
+    "firstName": "Ruby",
+    "lastName": "Barnes",
+    "income": 84562
+  },
+  {
+    "firstName": "Ronald",
+    "lastName": "Bell",
+    "income": 91166
+  },
+  {
+    "firstName": "Philip",
+    "lastName": "Brooks",
+    "income": 83907
+  },
+  {
+    "firstName": "Clarence",
+    "lastName": "Brown",
+    "income": 95879
+  },
+  {
+    "firstName": "Jason",
+    "lastName": "Brown",
+    "income": 53770
+  },
+  {
+    "firstName": "Carlos",
+    "lastName": "Clark",
+    "income": 77423
+  }
+]
