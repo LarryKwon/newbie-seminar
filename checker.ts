@@ -9,7 +9,7 @@ const prisma = new PrismaClient()
 
 
 function problem1() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select firstName, lastName, income from Customer where income <= 60000 and income >= 50000 order by income desc, lastName asc, firstName asc LIMIT 10;`
 }
 
 function problem2() {
