@@ -77,21 +77,42 @@ function problem3() {
 
 function problem4() {
   return prisma.$queryRaw`
-  SELECT 
+  SELECT
     c.customerID,
     c.income,
     o.accNumber,
     a.branchNumber
-  FROM 
-    Customer as c LEFT OUTER JOIN Owns as o
-    ON c.customerID = o.customerID
-    LEFT OUTER JOIN Account AS a
-    ON o.accNumber = a.accNumber
-  WHERE 
-    (c.income > 80000) 
-    AND
-    (a.branchNumber IN (1, 2))
-  ORDER BY c.customerID, o.accNumber 
+  FROM
+      Customer as c LEFT OUTER JOIN Owns as o
+      ON c.customerID = o.customerID
+      LEFT OUTER JOIN Account AS a
+      ON o.accNumber = a.accNumber
+  WHERE
+      (c.income > 80000)
+      AND
+      EXISTS(
+          SELECT c1.customerID
+          FROM
+              Customer as c1 LEFT OUTER JOIN Owns as o1
+              ON c1.customerID = o1.customerID
+              LEFT OUTER JOIN Account AS a1
+              ON o1.accNumber = a1.accNumber
+          WHERE a1.branchNumber = 1 AND
+                c1.customerID = c.customerID
+          )
+      AND
+      EXISTS(
+          SELECT c1.customerID
+          FROM
+              Customer as c1 LEFT OUTER JOIN Owns as o1
+              ON c1.customerID = o1.customerID
+              LEFT OUTER JOIN Account AS a1
+              ON o1.accNumber = a1.accNumber
+          WHERE a1.branchNumber = 2 AND
+                c1.customerID = c.customerID
+      )
+
+  ORDER BY c.customerID, o.accNumber
   LIMIT 10;
   `
 }
