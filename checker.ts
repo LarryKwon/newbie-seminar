@@ -250,7 +250,20 @@ function problem7() {
 }
 
 function problem8() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT
+    e.sin AS "sin",
+    e.firstName AS "firstName",
+    e.lastName AS "lastName",
+    e.salary AS "salary",
+    (IF(b.managerSIN = e.sin, b.branchName, NULL)) AS "branchName"
+  FROM
+      Employee AS e
+      LEFT OUTER JOIN Branch AS b ON e.branchNumber = b.branchNumber
+  WHERE e.salary > 50000
+  ORDER BY (IF(b.managerSIN = e.sin, b.branchName, NULL)) DESC, e.firstName
+  LIMIT 10;
+  `
 }
 
 function problem9() {
