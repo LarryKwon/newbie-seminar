@@ -118,15 +118,135 @@ function problem4() {
 }
 
 function problem5() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT
+    c.customerID,
+    a.type,
+    o.accNumber,
+    a.balance
+  FROM
+      Customer as c LEFT OUTER JOIN Owns as o
+      ON c.customerID = o.customerID
+      LEFT OUTER JOIN Account AS a
+      ON o.accNumber = a.accNumber
+  WHERE
+      a.type = 'BUS'
+      OR
+      a.type = 'SAV'
+
+  ORDER BY c.customerID, a.type, o.accNumber
+  LIMIT 10;
+  `
 }
 
 function problem6() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT
+    b.branchName,
+    a.accNumber,
+    a.balance
+  FROM
+      Branch AS b LEFT OUTER JOIN Account AS a
+      ON b.branchNumber = a.branchNumber
+  WHERE
+      a.balance > 100000
+      AND
+      a.branchNumber = (
+          SELECT b1.branchNumber
+          FROM
+              Employee as e1 INNER JOIN Branch as b1
+              ON e1.sin = b1.managerSIN
+          WHERE
+              e1.firstName = 'Phillip'
+              AND
+              e1.lastName = 'Edwards'
+          )
+
+  ORDER BY a.accNumber
+  LIMIT 10;
+  `
 }
 
 function problem7() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT
+    DISTINCT c.customerID
+  FROM
+      Customer AS c LEFT OUTER JOIN Owns as o
+      ON c.customerID = o.customerID
+      LEFT OUTER JOIN Account AS a
+      ON o.accNumber = a.accNumber
+      LEFT OUTER JOIN Branch as b
+      ON a.branchNumber = b.branchNumber
+  WHERE
+      EXISTS (
+          SELECT
+              c0.customerID
+          FROM
+              Customer AS c0 LEFT OUTER JOIN Owns as o0
+              ON c0.customerID = o0.customerID
+              LEFT OUTER JOIN Account AS a0
+              ON o0.accNumber = a0.accNumber
+              LEFT OUTER JOIN Branch as b0
+              ON a0.branchNumber = b0.branchNumber
+          WHERE c0.customerID = c.customerID AND
+                b0.branchName = 'New York'
+      )
+      AND
+      NOT EXISTS (
+          SELECT
+              c1.customerID
+          FROM
+              Customer AS c1 LEFT OUTER JOIN Owns as o1
+              ON c1.customerID = o1.customerID
+              LEFT OUTER JOIN Account AS a1
+              ON o1.accNumber = a1.accNumber
+              LEFT OUTER JOIN Branch as b1
+              ON a1.branchNumber = b1.branchNumber
+          WHERE c1.customerID = c.customerID AND
+                b1.branchName = 'London'
+      )
+      AND
+      c.customerID NOT IN (
+          SELECT
+              c4.customerID
+          FROM
+              Customer AS c4 LEFT OUTER JOIN Owns as o4
+              ON c4.customerID = o4.customerID
+              LEFT OUTER JOIN Account AS a4
+              ON o4.accNumber = a4.accNumber
+              LEFT OUTER JOIN Branch as b4
+              ON a4.branchNumber = b4.branchNumber
+          WHERE EXISTS(
+              SELECT
+                  c2.customerID
+              FROM
+                  Customer AS c2 LEFT OUTER JOIN Owns as o2
+                  ON c2.customerID = o2.customerID
+                  LEFT OUTER JOIN Account AS a2
+                  ON o2.accNumber = a2.accNumber
+                  LEFT OUTER JOIN Branch as b2
+                  ON a2.branchNumber = b2.branchNumber
+              WHERE
+                  c2.customerID != c4.customerID AND
+                  a2.accNumber = a4.accNumber AND
+                  EXISTS (
+                      SELECT c3.customerID
+                      FROM
+                          Customer AS c3 LEFT OUTER JOIN Owns as o3
+                          ON c3.customerID = o3.customerID
+                          LEFT OUTER JOIN Account AS a3
+                          ON o3.accNumber = a3.accNumber
+                          LEFT OUTER JOIN Branch as b3
+                          ON a3.branchNumber = b3.branchNumber
+                      WHERE c3.customerID = c2.customerID AND
+                            b3.branchName = 'London'
+                ))
+      )
+
+  ORDER BY c.customerID
+  LIMIT 10;
+  `
 }
 
 function problem8() {
