@@ -267,7 +267,25 @@ function problem8() {
 }
 
 function problem9() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT
+    e.sin AS "sin",
+    e.firstName AS "firstName",
+    e.lastName AS "lastName",
+    e.salary AS "salary",
+    (SELECT b.branchName
+        FROM Branch AS b
+        WHERE e.sin = b.managerSIN) AS "branchName"
+  FROM
+    Employee AS e
+  WHERE 
+    e.salary > 50000
+  ORDER BY 
+      (SELECT b.branchName
+        FROM Branch AS b
+        WHERE e.sin = b.managerSIN) DESC, e.firstName
+  LIMIT 10;
+  `
 }
 
 function problem10() {
