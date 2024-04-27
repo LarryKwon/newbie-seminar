@@ -293,11 +293,59 @@ function problem10() {
 }
 
 function problem11() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT
+    DISTINCT (SELECT e0.sin
+      FROM Employee AS e0
+      WHERE e0.salary = (SELECT
+                            MIN(e.salary)
+                        FROM Employee AS e
+                            LEFT OUTER JOIN Branch AS b ON e.branchNumber = b.branchNumber
+                        WHERE b.branchName IN ('Berlin')
+                        GROUP BY b.branchName
+                        )) AS "sin",
+    (SELECT e0.firstName
+      FROM Employee AS e0
+      WHERE e0.salary = (SELECT
+                            MIN(e.salary)
+                        FROM Employee AS e
+                            LEFT OUTER JOIN Branch AS b ON e.branchNumber = b.branchNumber
+                        WHERE b.branchName IN ('Berlin')
+                        GROUP BY b.branchName
+                        )) AS "firstName",
+    (SELECT e0.lastName
+      FROM Employee AS e0
+      WHERE e0.salary = (SELECT
+                            MIN(e.salary)
+                        FROM Employee AS e
+                            LEFT OUTER JOIN Branch AS b ON e.branchNumber = b.branchNumber
+                        WHERE b.branchName IN ('Berlin')
+                        GROUP BY b.branchName
+                        )) AS "lastName",
+    (SELECT e0.salary
+      FROM Employee AS e0
+      WHERE e0.salary = (SELECT
+                            MIN(e.salary)
+                        FROM Employee AS e
+                            LEFT OUTER JOIN Branch AS b ON e.branchNumber = b.branchNumber
+                        WHERE b.branchName IN ('Berlin')
+                        GROUP BY b.branchName
+                        )) AS "salary"
+  FROM Employee AS e LEFT OUTER JOIN Branch AS b ON e.branchNumber = b.branchNumber
+  GROUP BY b.branchName
+  LIMIT 10;`
 }
 
 function problem14() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT
+    CAST(SUM(e.salary) AS CHAR(7)) AS "sum of employees salaries"
+  FROM Employee AS e
+    LEFT OUTER JOIN Branch AS b ON e.branchNumber = b.branchNumber
+  WHERE b.branchName = 'Moscow'
+  GROUP BY b.branchName
+  LIMIT 10;
+  `
 }
 
 function problem15() {
