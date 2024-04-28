@@ -349,16 +349,80 @@ function problem14() {
 }
 
 function problem15() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT
+    c.customerID AS "customerID",
+    c.firstName AS "firstName",
+    c.lastName AS "lastName"
+  FROM
+      Customer AS c LEFT OUTER JOIN Owns as o
+      ON c.customerID = o.customerID
+      LEFT OUTER JOIN Account AS a
+      ON o.accNumber = a.accNumber
+      LEFT OUTER JOIN Branch as b
+      ON a.branchNumber = b.branchNumber
+  GROUP BY 
+      c.customerID, c.firstName, c.lastName
+  HAVING 
+      COUNT(DISTINCT b.branchName) = 4
+  ORDER BY 
+      c.lastName, c.firstName
+  LIMIT 10;
+  `
 }
 
 
 function problem17() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT
+    c.customerID AS "customerID",
+    c.firstName AS "firstName",
+    c.lastName AS "lastName",
+    c.income AS "income",
+    AVG(a.balance) AS "average account balance"
+  FROM
+      Customer AS c INNER JOIN Owns as o
+      ON c.customerID = o.customerID
+      INNER JOIN Account AS a
+      ON o.accNumber = a.accNumber
+      INNER JOIN Branch as b
+      ON a.branchNumber = b.branchNumber
+  WHERE
+      c.lastName LIKE 'S%' AND
+      c.lastName LIKE '%e%'
+  GROUP BY
+      c.customerID, c.firstName, c.lastName, c.income
+  HAVING COUNT(a.accNumber) >= 3
+  ORDER BY c.customerID
+  LIMIT 10;
+  `
 }
 
 function problem18() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT
+    a.accNumber AS "accNumber",
+    a.balance AS "balance",
+    SUM(t.amount) AS "sum of transaction amounts"
+  FROM
+      Customer AS c INNER JOIN Owns as o
+      ON c.customerID = o.customerID
+      INNER JOIN Account AS a
+      ON o.accNumber = a.accNumber
+      INNER JOIN Branch AS b
+      ON a.branchNumber = b.branchNumber
+      INNER JOIN Transactions AS t
+      ON a.accNumber = t.accNumber
+  WHERE
+      b.branchName = 'Berlin'
+  GROUP BY
+      a.accNumber, a.balance
+  HAVING
+      COUNT(DISTINCT t.transNumber) >= 10
+  ORDER BY
+      SUM(t.amount)
+  LIMIT 10;
+  `
 }
 
 const ProblemList = [
