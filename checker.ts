@@ -31,12 +31,8 @@ function problem4() {
            JOIN Customer C ON O.customerID = C.customerID
            JOIN Account A ON O.accNumber = A.accNumber
   WHERE C.income > 80000
-    AND EXISTS (
-      SELECT 1 FROM Owns O1 JOIN Account A1 ON O1.accNumber = A1.accNumber JOIN Branch B1 ON A1.branchNumber = B1.branchNumber WHERE O1.customerID = O.customerID AND B1.branchName = 'London'
-  )
-    AND EXISTS (
-      SELECT 1 FROM Owns O2 JOIN Account A2 ON O2.accNumber = A2.accNumber JOIN Branch B2 ON A2.branchNumber = B2.branchNumber WHERE O2.customerID = O.customerID AND B2.branchName = 'Latveria'
-  )
+    AND EXISTS (SELECT 1 FROM Owns O1 JOIN Account A1 ON O1.accNumber = A1.accNumber JOIN Branch B1 ON A1.branchNumber = B1.branchNumber WHERE O1.customerID = O.customerID AND B1.branchName = 'London')
+    AND EXISTS (SELECT 1 FROM Owns O2 JOIN Account A2 ON O2.accNumber = A2.accNumber JOIN Branch B2 ON A2.branchNumber = B2.branchNumber WHERE O2.customerID = O.customerID AND B2.branchName = 'Latveria')
   ORDER BY O.customerID ASC, O.accNumber ASC
   LIMIT 10;
   `
