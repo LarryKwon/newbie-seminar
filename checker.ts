@@ -111,11 +111,45 @@ function problem8() {
 }
 
 function problem9() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT e.sin, e.firstName, e.lastName, e.salary,
+  CASE WHEN EXISTS (
+           SELECT 1 FROM Branch b WHERE b.managerSIN = e.SIN
+       ) THEN (
+           SELECT b.branchName FROM Branch b WHERE b.managerSIN = e.SIN LIMIT 1
+       ) ELSE NULL END AS branchName  from Employee e
+  where e.salary > 50000
+  order by branchName desc, e.firstName asc
+  LIMIT 10;
+`
 }
 
 function problem10() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  select DISTINCT c.customerID, c.firstName, c.lastName, c.income
+  from Customer c
+  join Owns o on o.customerID = c.customerID
+  join Account a on o.accNumber = a.accNumber
+  where c.income>5000
+  and not exists(
+    select 1
+    from (
+      select b.branchNumber
+      from Customer c2
+      join Owns o2 on c2.customerID = o2.customerID
+      join Account a2 on o2.accNumber = a2.accNumber
+      join Branch b on a2.branchNumber = b.branchNumber
+      where c2.firstName = 'Helen' and c2.lastName = 'Morgan'
+    ) b_helen
+    where b_helen.branchNumber not in (
+      select a3.branchNumber
+      from Owns o3
+      join Account a3 on o3.accNumber = a3.accNumber
+      where o3.customerID = c.customerID
+    )
+  )
+  order by c.income desc
+  LIMIT 10;`
 }
 
 function problem11() {
@@ -188,7 +222,6 @@ async function main() {
   for (let i = 0; i < ProblemList.length; i++) {
     const result = await ProblemList[i]()
     const answer =  JSON.parse(fs.readFileSync(`${ProblemList[i].name}.json`,'utf-8'));
-    if (i==5){console.log(answer); console.log(result)};
     lodash.isEqual(result, answer) ? console.log(`${ProblemList[i].name}: Correct`) : console.log(`${ProblemList[i].name}: Incorrect`)
   }
 }
