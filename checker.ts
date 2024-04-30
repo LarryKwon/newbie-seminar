@@ -12,12 +12,12 @@ function problem1() {
   return prisma.$queryRaw`select firstName, lastName, income from Customer where income <= 60000 and income >= 50000 order by income desc, lastName asc, firstName asc LIMIT 10;`}
 
 function problem2() {
-  return prisma.$queryRaw`select e.sin, b.branchName, e.salary, m.salary-e.salary as \`Salary Diff\`
+  return prisma.$queryRaw`select e.sin, b.branchName, e.salary, CAST((m.salary - e.salary) AS CHAR(10))  as "Salary Diff"
   from Employee e
   join Branch b on e.branchNumber = b.branchNumber
   join Employee m on b.managerSIN = m.sin
   where b.branchName in ('London', 'Berlin')
-  order by \`Salary Diff\` desc
+  order by m.salary-e.salary desc
   LIMIT 10;`
 }
 
@@ -119,7 +119,16 @@ function problem15() {
 
 
 function problem17() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select c.customerID, c.firstName, c.lastName, c.income,
+  avg(a.balance) as "average account balance"
+  from Customer c
+  join Owns o on o.customerID = c.customerID
+  join Account a on o.accNumber = a.accNumber
+  where c.lastName like 'S%e%'
+  group by c.customerID, c.firstName, c.lastName, c.income
+  having count(DISTINCT a.accNumber) >= 3
+  order by c.customerID asc
+  LIMIT 10;`
 }
 
 function problem18() {
