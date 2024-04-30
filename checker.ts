@@ -9,15 +9,27 @@ const prisma = new PrismaClient()
 
 
 function problem1() {
-  return prisma.$queryRaw`select * from Customer`
-}
+  return prisma.$queryRaw`select firstName, lastName, income from Customer where income <= 60000 and income >= 50000 order by income desc, lastName asc, firstName asc LIMIT 10;`}
 
 function problem2() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select e.sin, b.branchName, e.salary, m.salary-e.salary as \`Salary Diff\`
+  from Employee e
+  join Branch b on e.branchNumber = b.branchNumber
+  join Employee m on b.managerSIN = m.sin
+  where b.branchName in ('London', 'Berlin')
+  order by \`Salary Diff\` desc
+  LIMIT 10;`
 }
 
 function problem3() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select c.firstName, c.lastName, c.income from Customer c
+  where c.income >= all (
+    select 2*c2.income
+    from Customer c2
+    where c2.lastName = 'Butler'
+  )
+  order by lastName asc, firstName asc 
+  LIMIT 10;`
 }
 
 function problem4() {
@@ -29,7 +41,12 @@ function problem5() {
 }
 
 function problem6() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select b.branchName, a.accNumber, a.balance 
+  from Branch b 
+  join Account a on b.branchNumber = a.branchNumber
+  where a.balance > 100000
+  order by a.accNumber asc
+  LIMIT 10;`  
 }
 
 function problem7() {
@@ -79,6 +96,7 @@ async function main() {
   for (let i = 0; i < ProblemList.length; i++) {
     const result = await ProblemList[i]()
     const answer =  JSON.parse(fs.readFileSync(`${ProblemList[i].name}.json`,'utf-8'));
+    if (i==5){console.log(answer); console.log(result)};
     lodash.isEqual(result, answer) ? console.log(`${ProblemList[i].name}: Correct`) : console.log(`${ProblemList[i].name}: Incorrect`)
   }
 }
