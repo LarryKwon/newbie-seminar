@@ -33,7 +33,25 @@ function problem3() {
 }
 
 function problem4() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select c.customerID, c.income, a.accNumber, a.branchNumber 
+  from Customer c
+  join Owns o on o.customerID = c.customerID
+  join Account a on o.accNumber = a.accNumber
+  where c.income>80000 
+  and c.customerID IN (
+    select o.customerID
+    from Owns o
+    join Account a on o.accNumber = a.accNumber
+    where a.branchNumber in (
+        select b.branchNumber
+        from Branch b
+        where b.branchName = 'London' or b.branchName = 'Latveria'
+    )
+    group by o.customerID
+    having COUNT(DISTINCT a.branchNumber) = 2
+)
+  order by c.customerID asc, a.accNumber asc
+  LIMIT 10;`
 }
 
 function problem5() {
@@ -60,7 +78,13 @@ function problem7() {
 }
 
 function problem8() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select e.sin, e.firstName, e.lastName, e.salary,
+  case when e.sin = b.managerSIN then b.branchName else null end as branchName
+  from Employee e
+  left join Branch b on e.sin = b.managerSIN
+  where e.salary > 50000
+  order by branchName desc, e.firstName asc
+  LIMIT 10`
 }
 
 function problem9() {
@@ -72,7 +96,17 @@ function problem10() {
 }
 
 function problem11() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select e.sin, e.firstName, e.lastName, e.salary
+  from Employee e
+  join Branch b on e.branchNumber = b.branchNumber
+  where b.branchName = 'Berlin' and e.salary = (
+    select min(e2.salary)
+    from Employee e2
+    join Branch b2 on e2.branchNumber = b2.branchNumber
+    where b2.branchName = 'Berlin'
+  )
+  order by e.sin asc
+  LIMIT 10;`
 }
 
 function problem14() {
