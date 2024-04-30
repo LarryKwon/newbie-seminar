@@ -110,7 +110,11 @@ function problem11() {
 }
 
 function problem14() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select CAST(sum(e.salary) AS CHAR(10))as "sum of employees salaries"
+  from Employee e
+  join Branch b on b.branchNumber = e.branchNumber
+  where b.branchName = 'Moscow'
+  LIMIT 10;`
 }
 
 function problem15() {
