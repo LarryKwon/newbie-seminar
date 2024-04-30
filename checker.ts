@@ -114,7 +114,15 @@ function problem14() {
 }
 
 function problem15() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select c.customerID, c.firstName, c.lastName
+  from Customer c
+  join Owns o on o.customerID = c.customerID
+  join Account a on o.accNumber = a.accNumber
+  join Branch b on b.branchNumber = a.branchNumber
+  group by c.customerID, c.firstName, c.lastName
+  having count(DISTINCT b.branchName) = 4
+  order by c.lastName asc, c.firstName asc
+  LIMIT 10;`
 }
 
 
