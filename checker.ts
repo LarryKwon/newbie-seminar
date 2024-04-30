@@ -74,7 +74,30 @@ function problem6() {
 }
 
 function problem7() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`select c.customerID
+  from Customer c
+  join Owns o on o.customerID = c.customerID
+  join Account a on o.accNumber = a.accNumber
+  where a.branchNumber = (select branchNumber from Branch where branchName = 'New York')
+  and c.customerID not in (
+    select o.customerID
+    from Owns o
+    join Account a on o.accNumber = a.accNumber
+    where a.branchNumber = (select branchNumber from Branch where branchName = 'London')
+  )
+  and c.customerID not in (
+    select DISTINCT o1.customerID
+    from Owns o1
+    join Owns o2 on o1.accNumber = o2.accNumber and o1.customerID != o2.customerID
+    where o2.customerID in (
+    select o.customerID
+    from Owns o
+    join Account a on o.accNumber = a.accNumber
+    where a.branchNumber = (select branchNumber from Branch where branchName = 'London')
+  )
+  )
+  order by c.customerID asc
+  LIMIT 10`
 }
 
 function problem8() {
