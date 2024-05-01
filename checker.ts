@@ -35,7 +35,30 @@ function problem3() {
 }
 
 function problem4() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT c.customerID,c.income,a.accNumber,a.branchNumber from
+  Owns o
+      join Customer c on o.customerID = c.customerID
+      join Account a on o.accNumber = a.accNumber
+  where c.income>=80000
+  and exists(
+      SELECT 1
+      from Owns o2
+          join Account a2 on o2.accNumber = a2.accNumber
+          join Branch b2 on a2.branchNumber = b2.branchNumber
+      where o2.customerID = o.customerID
+      and 'London' = b2.branchName
+  )
+  and exists(
+      SELECT 1
+      from Owns o2
+          join Account a2 on o2.accNumber = a2.accNumber
+          join Branch b2 on a2.branchNumber = b2.branchNumber
+      where o2.customerID = o.customerID
+      and 'Latveria' = b2.branchName
+  )
+  order by c.customerID asc, a.accNumber asc
+  LIMIT 10;
+  `
 }
 
 function problem5() {
