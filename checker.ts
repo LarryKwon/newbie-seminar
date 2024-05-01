@@ -62,7 +62,14 @@ function problem4() {
 }
 
 function problem5() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT c.customerID,a.type,a.accNumber,a.balance from
+  Account a
+      join Owns o on a.accNumber = o.accNumber
+      join Customer c on o.customerID = c.customerID
+  where a.type in ('SAV', 'BUS')
+  order by c.customerID asc, a.type asc, a.accNumber asc
+  LIMIT 10;
+  `
 }
 
 function problem6() {
