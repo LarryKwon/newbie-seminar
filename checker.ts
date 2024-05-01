@@ -25,7 +25,13 @@ function problem2() {
 }
 
 function problem3() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT c.firstName,c.lastName,c.income from
+  Customer c
+      join (SELECT max(income) as c2 from Customer where lastName = 'Butler') c2
+  where c.income>=2*c2
+  order by c.lastName asc, c.firstName asc
+  LIMIT 10;
+  `
 }
 
 function problem4() {
