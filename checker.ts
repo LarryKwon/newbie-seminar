@@ -13,7 +13,15 @@ function problem1() {
 }
 
 function problem2() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT e.sin, b.branchName, e.salary, cast((m.salary-e.salary) as char(10)) as "Salary Diff" from
+  Employee e
+      JOIN Branch b on e.branchNumber = b.branchNumber
+      JOIN Employee m on b.managerSIN = m.sin
+  where b.branchName ='London' or b.branchName='Berlin'
+  order by m.salary-e.salary desc
+  LIMIT 10;
+   
+  `
 }
 
 function problem3() {
