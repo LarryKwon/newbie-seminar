@@ -146,7 +146,28 @@ function problem9() {
 }
 
 function problem10() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT customerID, firstName, lastName, income from
+  Customer c
+  where income>5000 and
+  not EXISTS(
+      SELECT 1 from # helen 뭐시기가 not EXISTS인가
+      Owns o
+          join Customer c2 on o.customerID = c2.customerID
+          join Account a on o.accNumber = a.accNumber
+          join Branch b on a.branchNumber = b.branchNumber
+      where c2.firstName='Helen' and c2.lastName='Morgan' and
+      not EXISTS(
+          SELECT 1 from
+          Owns o2
+              join Account a2 on o2.accNumber = a2.accNumber
+              join Branch b2 on a2.branchNumber = b2.branchNumber
+          where o2.customerID=c.customerID and b.branchName=b2.branchName
+      )
+  )
+  order by income desc
+  LIMIT 10;
+  `
 }
 
 function problem11() {
