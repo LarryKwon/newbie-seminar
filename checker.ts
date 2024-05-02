@@ -216,7 +216,16 @@ function problem17() {
 }
 
 function problem18() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT a.accNumber, a.balance, SUM(t.amount) as "sum of transaction amounts" from
+  Account a
+      join Transactions t on a.accNumber = t.accNumber
+      join Branch b on a.branchNumber = b.branchNumber
+  where b.branchName='Berlin'
+  group by a.accNumber, a.balance
+  HAVING count(*)>=10
+  order by SUM(t.amount)
+  LIMIT 10;  
+  `
 }
 
 const ProblemList = [
