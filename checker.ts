@@ -117,7 +117,13 @@ function problem7() {
 }
 
 function problem8() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT e.sin, e.firstName, e.lastName, e.salary, b.branchName from
+  Employee e
+      left join Branch b on e.sin = b.managerSIN
+  where e.salary>50000
+  order by b.branchName desc,binary e.firstName
+  LIMIT 10;  
+  `
 }
 
 function problem9() {
