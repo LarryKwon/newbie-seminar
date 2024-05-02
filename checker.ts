@@ -203,7 +203,16 @@ function problem15() {
 
 
 function problem17() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT c.customerID, c.firstName, c.lastName, c.income, AVG(a.balance) as "average account balance" from
+  Customer c
+      join Owns o on c.customerID = o.customerID
+      join Account a on o.accNumber = a.accNumber
+  where INSTR(c.lastName, 'e') and 'S'=SUBSTR(c.lastName,1,1)
+  group by c.customerID
+  having count(*)>=3
+  order by c.customerID
+  LIMIT 10;  
+  `
 }
 
 function problem18() {
