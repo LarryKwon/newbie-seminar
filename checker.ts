@@ -127,7 +127,22 @@ function problem8() {
 }
 
 function problem9() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT e.sin, e.firstName, e.lastName, e.salary, b.branchName from
+  Employee e,Branch b
+  where e.salary>50000 and
+  e.sin = b.managerSIN
+  union
+  SELECT e.sin, e.firstName, e.lastName, e.salary, null as branchName from
+  Employee e
+  where e.salary>50000 and
+  not EXISTS(
+      SELECT 1 from
+      Branch b
+      where e.sin = b.managerSIN
+  )
+  order by branchName desc,binary firstName
+  LIMIT 10;
+  `
 }
 
 function problem10() {
