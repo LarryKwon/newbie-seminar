@@ -73,7 +73,14 @@ function problem5() {
 }
 
 function problem6() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT b.branchName, a.accNumber, a.balance from
+  Account a
+      join Branch b on a.branchNumber = b.branchNumber
+      join Employee e on b.managerSIN = e.sin
+  where a.balance>100000 and e.firstName='Phillip' and e.lastName='Edwards'
+  order by a.accNumber
+  LIMIT 10;
+  `
 }
 
 function problem7() {
