@@ -171,7 +171,13 @@ function problem10() {
 }
 
 function problem11() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT sin, firstName, lastName, salary from
+  Employee e
+      join Branch b on e.branchNumber = b.branchNumber
+  where b.branchName='Berlin'
+  order by salary
+  LIMIT 1;
+  `
 }
 
 function problem14() {
