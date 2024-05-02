@@ -84,7 +84,36 @@ function problem6() {
 }
 
 function problem7() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT c.customerID from
+  Customer c
+  where EXISTS(
+      SELECT 1 from
+      Owns o
+          join Account a on o.accNumber = a.accNumber
+          join Branch b on a.branchNumber = b.branchNumber
+      where c.customerID=o.customerID and
+            b.branchName='New York'
+  ) and not EXISTS( # London인 친구 있는지 반환:자기 자신 포함
+      SELECT 1 from
+      Owns o
+      where c.customerID=o.customerID and
+      EXISTS(SELECT 1
+             from Owns o3
+             where o3.accNumber = o.accNumber
+               and EXISTS(
+                 SELECT 1 from
+                 Customer c2
+                 where c2.customerID = o3.customerID and
+                       EXISTS(SELECT 1
+                              from Owns o2
+                                       join Account a2 on o2.accNumber = a2.accNumber
+                                       join Branch b2 on a2.branchNumber = b2.branchNumber
+                              where o2.customerID = c2.customerID
+                                and b2.branchName = 'London')))
+  )
+  order by c.customerId
+  LIMIT 10;  
+  `
 }
 
 function problem8() {
