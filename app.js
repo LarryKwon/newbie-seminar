@@ -369,6 +369,74 @@ app.get('/problems/6', async (req, res) => {
     }
 });
 
+app.get('/problems/7', async (req, res) => {
+    try {
+        const q = await prisma.customer.findMany({
+            include: {
+                Owns: {
+                    include: {
+                        Account: {
+                            include: {
+                                Branch: {
+                                    select: {
+                                        branchName: true,
+                                    },
+                                },
+                                Owns: {
+                                    include: {
+                                        Customer: {
+                                            include: {
+                                                Owns: {
+                                                    include: {
+                                                        Account: {
+                                                            include: {
+                                                                Branch: {
+                                                                    select: {
+                                                                        branchName: true,
+                                                                    },
+                                                                },
+                                                            },
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            orderBy: { customerID: 'asc' },
+        });
+        var result = [];
+        for (const element of q) {
+            var flag = false;
+            for (const elem of element.Owns) {
+                if (elem.Account.Branch.branchName == 'New York') { flag = true; }
+            }
+            if (!flag) { continue; }
+            flag = false;
+            for (const elem of element.Owns) {
+                for (const ele of elem.Account.Owns) {
+                    for (const el of ele.Customer.Owns) {
+                        if (el.Account.Branch.branchName == 'London') { flag = true; }
+                    }
+                }
+            }
+            if (flag) { continue; }
+            result.push({
+                customerID: element.customerID,
+            });
+        }
+        return res.status(200).json(result.slice(0, 10));
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
 app.listen(port, () => {
     console.log('Starting Server...');
 });
