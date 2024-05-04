@@ -268,6 +268,63 @@ app.get('/problems/4', async (req, res) => {
     }
 });
 
+app.get('/problems/5', async (req, res) => {
+    try {
+        const q = await prisma.customer.findMany({
+            include: {
+                Owns: {
+                    include: {
+                        Account: true,
+                    },
+                },
+            },
+            orderBy: [
+                { customerID: 'asc' },
+            ],
+        });
+        var result = [];
+        for (const element of q) {
+            var flag_a = false;
+            var flag_b = false;
+            for (const elem of element.Owns) {
+                if (elem.Account.type == 'BUS') {
+                    flag_a = true;
+                }
+                if (elem.Account.type == 'SAV') {
+                    flag_b = true;
+                }
+            }
+            if (!(flag_a || flag_b)) { continue; }
+            var tmpResult = [];
+            for (const elem of element.Owns) {
+                if (!(elem.Account.type == 'BUS' || elem.Account.type == 'SAV')) {
+                    continue;
+                }
+                tmpResult.push({
+                    customerID: element.customerID,
+                    type: elem.Account.type,
+                    accNumber: elem.accNumber,
+                    balance: elem.Account.balance,
+                });
+            }
+            tmpResult.sort(function (a, b) {
+                return a.accNumber - b.accNumber;
+            });
+            tmpResult.sort(function (a, b) {
+                if (a.type == b.type) return 0;
+                return a.type == 'BUS' ? -1 : 1;
+            });
+            for (const elem of tmpResult) {
+                result.push(elem);
+            }
+        }
+        return res.status(200).json(result.slice(0, 10));
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
 app.listen(port, () => {
     console.log('Starting Server...');
 });
