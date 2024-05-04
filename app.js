@@ -692,6 +692,46 @@ app.get('/problems/17', async (req, res) => {
     }
 });
 
+app.get('/problems/18', async (req, res) => {
+    try {
+        const B = await prisma.branch.findFirst({
+            where: {
+                branchName: 'Berlin',
+            },
+        });
+        const q = await prisma.account.findMany({
+            where: {
+                branchNumber: B.branchNumber,
+            },
+            select: {
+                accNumber: true,
+                balance: true,
+                Transactions: true,
+            },
+        });
+        var result = [];
+        for (const element of q) {
+            if (element.Transactions.length < 10) { continue; }
+            var s = 0;
+            for (const elem of element.Transactions) {
+                s += parseFloat(elem.amount);
+            }
+            result.push({
+                accNumber: element.accNumber,
+                balance: element.balance,
+                'sum of transaction amounts': s,
+            });
+        }
+        result.sort(function (a, b) {
+            return a['sum of transaction amounts'] - b['sum of transaction amounts'];
+        });
+        return res.status(200).json(result.slice(0, 10));
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
 app.listen(port, () => {
     console.log('Starting Server...');
 });
