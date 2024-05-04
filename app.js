@@ -78,6 +78,101 @@ app.get('/problems/1', async (req, res) => {
     }
 });
 
+app.get('/problems/2', async (req, res) => { //sample endpoint
+    try {
+        const London = await prisma.branch.findFirst({
+            where: {
+                branchName: 'London',
+            },
+            select: {
+                branchNumber: true,
+                managerSIN: true,
+            },
+        });
+        const M_London = await prisma.employee.findFirst({
+            where: {
+                branchNumber: London.branchNumber,
+                sin: London.managerSIN,
+            },
+            select: {
+                branchNumber: true,
+                sin: true,
+                salary: true,
+            },
+        });
+        const E_London = await prisma.employee.findMany({
+            where: {
+                AND: {
+                    branchNumber: London.branchNumber,
+                    NOT: {
+                        sin: London.managerSIN,
+                    },
+                },
+            },
+            select: {
+                sin: true,
+                salary: true,
+            },
+        });
+        const Berlin = await prisma.branch.findFirst({
+            where: {
+                branchName: 'Berlin',
+            },
+            select: {
+                branchNumber: true,
+                managerSIN: true,
+            },
+        });
+        const M_Berlin = await prisma.employee.findFirst({
+            where: {
+                branchNumber: Berlin.branchNumber,
+                sin: Berlin.managerSIN,
+            },
+            select: {
+                branchNumber: true,
+                sin: true,
+                salary: true,
+            },
+        });
+        const E_Berlin = await prisma.employee.findMany({
+            where: {
+                AND: {
+                    branchNumber: Berlin.branchNumber,
+                    NOT: {
+                        sin: Berlin.managerSIN,
+                    },
+                },
+            },
+            select: {
+                sin: true,
+                salary: true,
+            },
+        });
+        var result = [];
+        for (const element of E_London) {
+            result.push({
+                ...element,
+                branchName: 'London',
+                'Salary Diff': (M_London.salary - element.salary).toString(),
+            });
+        }
+        for (const element of E_Berlin) {
+            result.push({
+                ...element,
+                branchName: 'Berlin',
+                'Salary Diff': (M_Berlin.salary - element.salary).toString(),
+            });
+        }
+        result.sort(function (a, b) {
+            return parseInt(b['Salary Diff']) - parseInt(a['Salary Diff']);
+        });
+        return res.status(200).json(result.slice(0, 10));
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
 app.listen(port, () => {
     console.log('Starting Server...');
 });
