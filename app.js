@@ -487,6 +487,16 @@ app.get('/problems/8', async (req, res) => {
     }
 });
 
+app.get('/problems/9', async (req, res) => {
+    try {
+        // Same as Pb. 8 since join operator is not used in Pb. 8
+        return res.status(200).json((await axios.get(`http://localhost:3000/problems/8`)).data);
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
 app.listen(port, () => {
     console.log('Starting Server...');
 });
