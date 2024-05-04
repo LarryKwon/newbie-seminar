@@ -211,6 +211,63 @@ app.get('/problems/3', async (req, res) => {
     }
 });
 
+app.get('/problems/4', async (req, res) => {
+    try {
+        const q = await prisma.customer.findMany({
+            where: {
+                income: { gt: 80000 },
+            },
+            include: {
+                Owns: {
+                    include: {
+                        Account: {
+                            include: {
+                                Branch: true,
+                            },
+                        },
+                    },
+                },
+            },
+            orderBy: [
+                { customerID: 'asc' },
+            ]
+        });
+        var result = [];
+        for (const element of q) {
+            var flag_a = false;
+            var flag_b = false;
+            for (const elem of element.Owns) {
+                if (elem.Account.Branch.branchName == 'London') {
+                    flag_a = true;
+                }
+                if (elem.Account.Branch.branchName == 'Latveria') {
+                    flag_b = true;
+                }
+            }
+            if (!(flag_a && flag_b)) { continue; }
+            var tmpResult = [];
+            for (const elem of element.Owns) {
+                tmpResult.push({
+                    customerID: element.customerID,
+                    income: element.income,
+                    accNumber: elem.accNumber,
+                    branchNumber: elem.Account.branchNumber,
+                });
+            }
+            tmpResult.sort(function (a, b) {
+                return a.accNumber - b.accNumber;
+            });
+            for (const elem of tmpResult) {
+                result.push(elem);
+            }
+        }
+        return res.status(200).json(result.slice(0, 10));
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
 app.listen(port, () => {
     console.log('Starting Server...');
 });
