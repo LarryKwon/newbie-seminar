@@ -558,7 +558,7 @@ app.get('/problems/11', async (req, res) => {
     try {
         const B = await prisma.branch.findFirst({
             where: { branchName: 'Berlin' },
-        })
+        });
         const q = await prisma.employee.findMany({
             select: {
                 sin: true,
@@ -578,6 +578,26 @@ app.get('/problems/11', async (req, res) => {
             }
         }
         return res.status(200).json(result.slice(0, 10));
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
+app.get('/problems/14', async (req, res) => {
+    try {
+        const M = await prisma.branch.findFirst({
+            where: { branchName: 'Moscow' },
+        });
+        const result = (await prisma.employee.aggregate({
+            where: {
+                branchNumber: M.branchNumber,
+            },
+            _sum: {
+                salary: true,
+            },
+        }))._sum.salary;
+        return res.status(200).json([{"sum of employees salaries": result.toString()}]);
     } catch (e) {
         console.log(e);
         return res.status(500).json({});
