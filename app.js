@@ -732,6 +732,62 @@ app.get('/problems/18', async (req, res) => {
     }
 });
 
+app.post('/employee/join', async (req, res) => {
+    const body = req.body;
+    const newEmployee = await prisma.employee.create({
+        data: {
+            sin: parseInt(body.sin),
+            firstName: body.firstName,
+            lastName: body.lastName,
+            salary: parseInt(body.salary),
+            branchNumber: parseInt(body.branchNumber),
+        },
+    });
+    return res.status(200).json(newEmployee);
+});
+
+app.post('/employee/leave', async (req, res) => {
+    const body = req.body;
+    const oldEmployee = await prisma.employee.delete({
+        where: {
+            sin: parseInt(body.sin),
+        },
+    });
+    return res.status(200).json(oldEmployee);
+});
+
+app.post('/account/:account_no/deposit', async (req, res) => {
+    const body = req.body;
+    const account_no = parseInt(req.params.account_no);
+    const updateAccount = await prisma.account.update({
+        where: {
+            accNumber: account_no,
+        },
+        data: {
+            balance: {
+                increment: parseInt(body.amount),
+            },
+        },
+    });
+    return res.status(200).json(updateAccount);
+});
+
+app.post('/account/:account_no/withdraw', async (req, res) => {
+    const body = req.body;
+    const account_no = parseInt(req.params.account_no);
+    const updateAccount = await prisma.account.update({
+        where: {
+            accNumber: account_no,
+        },
+        data: {
+            balance: {
+                decrement: parseInt(body.amount),
+            },
+        },
+    });
+    return res.status(200).json(updateAccount);
+});
+
 app.listen(port, () => {
     console.log('Starting Server...');
 });
