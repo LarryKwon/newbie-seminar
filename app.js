@@ -40,7 +40,8 @@ app.get('/checker', async (req, res) => {
     return res.status(200).json(rtval);
 });
 
-app.get('/problems/0', async (req, res) => { //sample endpoint
+//sample endpoint
+app.get('/problems/0', async (req, res) => {
     try {
         const result = await prisma.branch.findMany();
         return res.status(200).json(result);
@@ -78,7 +79,7 @@ app.get('/problems/1', async (req, res) => {
     }
 });
 
-app.get('/problems/2', async (req, res) => { //sample endpoint
+app.get('/problems/2', async (req, res) => {
     try {
         const London = await prisma.branch.findFirst({
             where: {
@@ -167,6 +168,43 @@ app.get('/problems/2', async (req, res) => { //sample endpoint
             return parseInt(b['Salary Diff']) - parseInt(a['Salary Diff']);
         });
         return res.status(200).json(result.slice(0, 10));
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
+app.get('/problems/3', async (req, res) => {
+    try {
+        const C = await prisma.customer.findFirst({
+            where: {
+                lastName: 'Butler',
+            },
+            orderBy: [
+                { income: 'desc' },
+            ],
+            select: {
+                income: true,
+            },
+        });
+        const result = await prisma.customer.findMany({
+            where: {
+                income: {
+                    gt: C.income*2,
+                },
+            },
+            orderBy: [
+                { lastName: 'asc' },
+                { firstName: 'asc' },
+            ],
+            select: {
+                firstName: true,
+                lastName: true,
+                income: true,
+            },
+            take: 10,
+        })
+        return res.status(200).json(result);
     } catch (e) {
         console.log(e);
         return res.status(500).json({});
