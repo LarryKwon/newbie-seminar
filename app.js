@@ -325,6 +325,50 @@ app.get('/problems/5', async (req, res) => {
     }
 });
 
+app.get('/problems/6', async (req, res) => {
+    try {
+        const E = await prisma.employee.findFirst({
+            where: {
+                AND: {
+                    firstName: 'Phillip',
+                    lastName: 'Edwards',
+                },
+            },
+        });
+        const B = await prisma.branch.findFirst({
+            where: {
+                managerSIN: E.sin,
+            },
+        });
+        const q = await prisma.account.findMany({
+            include: {
+                Branch: {
+                    select: {
+                        branchName: true,
+                    }
+                }
+            },
+            where: {
+                branchNumber: B.branchNumber,
+            },
+            orderBy: { accNumber: 'asc' },
+        });
+        var result = [];
+        for (const element of q) {
+            if (parseFloat(element.balance) < 100000) continue;
+            result.push({
+                branchName: element.Branch.branchName,
+                accNumber: element.accNumber,
+                balance: element.balance,
+            });
+        }
+        return res.status(200).json(result.slice(0, 10));
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
 app.listen(port, () => {
     console.log('Starting Server...');
 });
