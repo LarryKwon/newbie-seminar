@@ -651,6 +651,47 @@ app.get('/problems/15', async (req, res) => {
     }
 });
 
+app.get('/problems/17', async (req, res) => {
+    try {
+        const q = await prisma.customer.findMany({
+            where: {
+                lastName: {
+                    startsWith: 'S',
+                    contains: 'e',
+                },
+            },
+            include: {
+                Owns: {
+                    include: {
+                        Account: true,
+                    },
+                },
+            },
+        });
+        var result = [];
+        for (const element of q) {
+            if (element.Owns.length < 3) { continue; }
+            var s = 0;
+            var c = 0;
+            for (const elem of element.Owns) {
+                s += parseFloat(elem.Account.balance);
+                c += 1;
+            }
+            result.push({
+                customerID: element.customerID,
+                firstName: element.firstName,
+                lastName: element.lastName,
+                income: element.income,
+                'average account balance': s / c,
+            });
+        }
+        return res.status(200).json(result);
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
 app.listen(port, () => {
     console.log('Starting Server...');
 });
