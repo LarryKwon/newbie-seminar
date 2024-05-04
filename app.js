@@ -437,6 +437,56 @@ app.get('/problems/7', async (req, res) => {
     }
 });
 
+app.get('/problems/8', async (req, res) => {
+    try {
+        const q = await prisma.employee.findMany({
+            where: {
+                salary: { gt: 50000 },
+            },
+            select: {
+                sin: true,
+                firstName: true,
+                lastName: true,
+                salary: true,
+                Branch_Branch_managerSINToEmployee: true,
+            },
+            orderBy: [
+                { firstName: 'asc' }
+            ],
+        });
+        var result = [];
+        for (const element of q) {
+            if (element.Branch_Branch_managerSINToEmployee.length != 0) {
+                result.push({
+                    sin: element.sin,
+                    firstName: element.firstName,
+                    lastName: element.lastName,
+                    salary: element.salary,
+                    branchName: element.Branch_Branch_managerSINToEmployee[0].branchName,
+                });
+            }
+        }
+        result.sort(function (a, b) {
+            return a.branchName > b.branchName ? -1 : 1;
+        });
+        for (const element of q) {
+            if (element.Branch_Branch_managerSINToEmployee.length == 0) {
+                result.push({
+                    sin: element.sin,
+                    firstName: element.firstName,
+                    lastName: element.lastName,
+                    salary: element.salary,
+                    branchName: null,
+                });
+            }
+        }
+        return res.status(200).json(result.slice(0, 10));
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({});
+    }
+});
+
 app.listen(port, () => {
     console.log('Starting Server...');
 });
