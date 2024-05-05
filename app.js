@@ -497,3 +497,11 @@ app.get("/problems/9", async (req, res) => {
 
   res.json(full_list.slice(0, 10));
 });
+
+app.get("/problems/10", async (req, res) => {
+  const result = await prisma.employee.findMany({
+    take: 10,
+  })
+  res.json(result);
+});
+
