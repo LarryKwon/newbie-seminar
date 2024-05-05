@@ -542,3 +542,22 @@ app.get("/problems/11", async (req, res) => {
 
   res.json(result);
 });
+
+app.get("/problems/14", async (req, res) => {
+  const sumOfSalaries = await prisma.employee.aggregate({
+    _sum: {
+      salary: true,
+    },
+    where: {
+      Branch_Employee_branchNumberToBranch: {
+        branchName: 'Moscow',
+      },
+    },
+  });  
+
+  const result = {
+    "sum of employees salaries": sumOfSalaries._sum.salary.toString(),
+  };
+  res.json(result);
+});
+
