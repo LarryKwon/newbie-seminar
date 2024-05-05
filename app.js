@@ -651,3 +651,38 @@ app.get("/problems/17", async (req, res) => {
   res.json(result.slice(0, 10));
 });
 
+app.get("/problems/18", async (req, res) => {
+  const accounts = await prisma.account.findMany({
+    include: {
+      Transactions: true,
+    },
+    where: {
+      Branch: {
+        branchName: "Berlin",
+      }
+    }
+  });
+
+  const filter = accounts.filter(account => {
+    return account.Transactions.length >= 10;
+  });
+
+  const filter2 = filter.map(account => {
+    const sum_trans = account.Transactions.reduce((sum, tran) => {
+      return sum + parseFloat(tran.amount);
+    }, 0);
+    return {
+      accNumber: account.accNumber,
+      balance: account.balance,
+      sum: sum_trans
+    }
+  });
+    
+  const result = filter2.sort((a, b) => {
+    if (a.sum < b.sum) return -1;
+    else if (a.sum > b.sum) return 1;
+    else  return 0;
+  });
+
+  res.json(result.slice(0, 10));
+});
