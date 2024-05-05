@@ -561,3 +561,46 @@ app.get("/problems/14", async (req, res) => {
   res.json(result);
 });
 
+app.get("/problems/15", async (req, res) => {
+  const full_join = await prisma.customer.findMany({
+    // join
+    include: {
+      Owns: {
+        include: {
+          Account: {
+            include: {
+              Branch: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const result = full_join.filter((customer) => {
+      // distinct
+      const branchNames = new Set(
+        customer.Owns.map((branch) => branch.Account.Branch.branchName)
+      );
+      return branchNames.size === 4;
+    })
+  
+  const filter_result = result.map((customer) => ({
+    customerID: customer.customerID,
+    firstName: customer.firstName,
+    lastName: customer.lastName,
+  }));
+    
+  const result_branch = filter_result.sort((a, b) => {
+    if (a.branchName > b.branchName) return -1;
+    else if (a.branchName < b.branchName) return 1;
+    else  return 0;
+  });
+
+  const result_N = result_branch.sort((a, b) => {
+    if (a.lastName < b.lastName) return -1;
+    else if (a.lastName > b.lastName) return 1;
+    else  return 0;
+  });
+  res.json(result_N.slice(0, 10));
+});
