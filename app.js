@@ -505,3 +505,40 @@ app.get("/problems/10", async (req, res) => {
   res.json(result);
 });
 
+app.get("/problems/11", async (req, res) => {
+  const min_salary = await prisma.employee.findMany({
+    where: {
+      Branch_Employee_branchNumberToBranch: {
+        branchName: "Berlin",
+      },
+    },
+    orderBy: {
+      salary: "asc",
+    },
+    take: 1,
+  });
+
+  const min = min_salary[0].salary;
+
+  const employees = await prisma.employee.findMany({
+    where: {
+      salary: min,
+      Branch_Employee_branchNumberToBranch: {
+        branchName: "Berlin",
+      },
+    },
+    orderBy: {
+      sin: "asc",
+    },
+    take: 10,
+  });
+
+  const result = employees.map((employee) => ({
+    sin: employee.sin,
+    firstName: employee.firstName,
+    lastName: employee.lastName,
+    salary: employee.salary,
+  }));
+
+  res.json(result);
+});
