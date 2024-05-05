@@ -686,3 +686,120 @@ app.get("/problems/18", async (req, res) => {
 
   res.json(result.slice(0, 10));
 });
+
+app.post("/employee/join", async (req, res) => {
+  try {
+    const { sin, firstName, lastName, salary, branchNumber } = req.body;
+
+    const newEmployee = await prisma.employee.create({
+      data: {
+        sin: sin,
+        firstName: firstName,
+        lastName: lastName,
+        salary: salary,
+        branchNumber: branchNumber,
+      },
+    });
+
+    res.status(201).json({ createdUser: newEmployee });
+  } catch (error) {
+    console.error("Error adding new employee: ", error);
+    res.status(500).send("Failed to add new employee.");
+  }
+});
+
+app.delete("/employee/leave", async (req, res) => {
+  try {
+    const { sin } = req.body;
+    const deletedEmployee = await prisma.employee.delete({
+      where: {
+        sin: sin
+      }
+    });
+
+    // Send a success response
+    res.status(200).json({ message: "Employee successfully deleted", deletedEmployee });
+  } catch (error) {
+    console.error("Error deleting employee: ", error);
+    res.status(500).json({ error: "Failed to delete employee" });
+  }
+});
+
+app.post("/account/:account_no/deposit", async (req, res) => {
+  const { account_no } = req.params;
+  const { customerID, firstName, lastName, amount } = req.body;
+
+  if (amount < 0) {
+    return res.status(400).send({ error: "Invalid amount. Deposit amount must be positive." });
+  }
+
+  try {
+    const account = await prisma.account.findUnique({
+      where: { accNumber: account_no },
+      include: { Owns: true },
+    });
+    
+    if (!account) {
+      return res.status(404).send({ error: "Account not found." });
+    }
+
+    const name_match_account = account.Owns.some(
+      (own) => own.customerID === customerID
+    );
+    if (!name_match_account) {
+      return res.status(403).send({error: "Unauthorized: Customer does not own this account."});
+    }
+
+    const deposit = await prisma.account.update({
+      select: { balance: true },
+      where: { accNumber: account_no },
+      data: { balance: (parseFloat(account.balance) + parseFloat(amount)).toString() },
+    });
+
+    res.status(200).send({ message: "Deposit successful", balance: deposit.balance });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/account/:account_no/withdraw", async (req, res) => {
+  const { account_no } = req.params;
+  const { customerID, firstName, lastName, amount } = req.body;
+
+  if (amount < 0) {
+    return res.status(400).send({ error: "Invalid amount. Deposit amount must be positive." });
+  }
+
+  try {
+    const account = await prisma.account.findUnique({
+      where: { accNumber: account_no },
+      include: { Owns: true },
+    });
+    
+    if (!account) {
+      return res.status(404).send({ error: "Account not found." });
+    }
+
+    const name_match_account = account.Owns.some(
+      (own) => own.customerID === customerID
+    );
+    if (!name_match_account) {
+      return res.status(403).send({error: "Unauthorized: Customer does not own this account."});
+    }
+
+    if (account.balance < amount) {
+      return res.status(400).send("Insufficient funds for withdrawal.");
+    }
+
+    const withdrawal = await prisma.account.update({
+      select: { balance: true },
+      where: { accNumber: account_no },
+      data: { balance: (parseFloat(account.balance) - parseFloat(amount)).toString() },
+    });
+
+    res.status(200).send({ message: "Withdrawal successful", balance: withdrawal.balance });
+  } catch (error) {
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+});
