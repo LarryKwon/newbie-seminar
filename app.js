@@ -604,3 +604,49 @@ app.get("/problems/15", async (req, res) => {
   });
   res.json(result_N.slice(0, 10));
 });
+
+app.get("/problems/17", async (req, res) => {
+  const customers = await prisma.customer.findMany({
+    include: {
+      Owns: {
+        include: {
+          Account: true
+        }
+      }
+    },
+    where: {
+      lastName: {
+        startsWith: 'S',
+        contains: 'e'
+      }
+    }
+  });
+
+  const filter = customers.filter(account => {
+    const num_accounts = new Set(account.Owns.map(own => own.accNumber));
+    return num_accounts.size >= 3;
+  });
+
+  const filter2 = filter.map(account => {
+    const sum_balance = account.Owns.reduce((sum, balan) => {
+      return sum + parseFloat(balan.Account.balance);
+    }, 0);
+
+    const average_balance = sum_balance / account.Owns.length;
+    return {
+      customerID: account.customerID,
+      firstName: account.firstName,
+      lastName: account.lastName,
+      income: account.income,
+      'average account balance': average_balance 
+    };
+  });
+    
+  const result = filter2.sort((a, b) => {
+    if (a.customerID < b.customerID) return -1;
+    else if (a.customerID > b.customerID) return 1;
+    else  return 0;
+  });
+
+  res.json(result.slice(0, 10));
+});
