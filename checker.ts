@@ -8,7 +8,6 @@ const prisma = new PrismaClient()
 
 
 
-
 function problem1() {
   return prisma.$queryRaw`SELECT firstName, lastName, income
   FROM Customer
