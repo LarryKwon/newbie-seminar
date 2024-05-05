@@ -170,3 +170,49 @@ app.get("/problems/4", async (req, res) => {
   
   // res.json(result.slice(0, 10));
 });
+
+app.get("/problems/5", async (req, res) => {
+  const BUS_and_SAV = await prisma.account.findMany({
+    select: {
+      accNumber: true,
+      type: true,
+      balance: true,
+      Owns: {
+        select: {
+          customerID: true,
+        },
+      },
+    },
+    where: {
+      type: {
+        in: ["BUS", "SAV"],
+      },
+    },
+  });
+
+  const formattedaccounts = BUS_and_SAV.flatMap(accounts => 
+    accounts.Owns.map(owns => ({
+      customerID: owns.customerID,
+      type: accounts.type,
+      accNumber: accounts.accNumber,
+      balance: accounts.balance
+    }))
+  );
+
+  formattedaccounts.sort((a, b) => {
+    // 먼저 customerID로 정렬
+    if (a.customerID !== b.customerID) {
+      return a.customerID - b.customerID;
+    } 
+    // 그 다음 type로 정렬
+    else if (a.type !== b.type) {
+      return a.type.localeCompare(b.type);
+    } 
+    // 마지막으로 accNumber로 정렬
+    else {
+      return a.accNumber - b.accNumber;
+    }
+  });
+  
+  res.json(formattedaccounts.slice(0, 10));
+});
