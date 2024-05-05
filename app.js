@@ -216,3 +216,38 @@ app.get("/problems/5", async (req, res) => {
   
   res.json(formattedaccounts.slice(0, 10));
 });
+
+app.get("/problems/6", async (req, res) => {
+  const managerPhilip = await prisma.account.findMany({
+    // join
+    include: {
+      Branch: {
+        select: {
+          branchNumber: true,
+          branchName: true,
+        },
+      },
+    },
+    where: {
+      Branch: {
+        Employee_Branch_managerSINToEmployee: {
+          firstName: "Phillip",
+          lastName: "Edwards",
+        }
+      }
+    },
+  });
+
+  const filter_accounts = managerPhilip.filter((account) => parseFloat(account.balance) > 100000)
+  const map_accounts = filter_accounts.map(e => ({
+    branchName: e.Branch.branchName,
+    accNumber: e.accNumber,
+    balance: e.balance
+  }))
+
+  const formattedaccounts = map_accounts.sort((a, b) => {
+    a.accNumber - b.accNumber
+  });
+
+  res.json(formattedaccounts.slice(0, 10));
+});
