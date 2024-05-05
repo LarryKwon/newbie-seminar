@@ -362,5 +362,138 @@ app.get("/problems/7", async (req, res) => {
   res.json(filtered_accounts.slice(0, 10));
 });
 
+app.get("/problems/8", async (req, res) => {
+  const manager = await prisma.branch.findMany({
+    select: {
+      managerSIN: true
+    }
+  });
+  
+  const employees = await prisma.employee.findMany({
+    select: {
+      sin: true,
+      firstName: true,
+      lastName: true,
+      salary: true,
+      Branch_Employee_branchNumberToBranch: {
+        select: {
+          branchName: true
+        }
+      }
+    },
+    where: {
+      salary: {
+        gt: 50000
+      }
+    },
+  });
 
+  const temp = employees.map(employee => ({
+    sin: employee.sin,
+    firstName: employee.firstName,
+    lastName: employee.lastName,
+    salary: employee.salary,
+    branchName: employee.Branch_Employee_branchNumberToBranch.branchName
+  })); 
 
+  const not_null = temp.filter(employee => 
+    manager.some(emp => 
+      emp.managerSIN == employee.sin));
+  
+  const is_null = temp.map(employee => {
+    if (!manager.some(emp => 
+      emp.managerSIN == employee.sin)) {
+      return ({
+        sin: employee.sin,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        salary: employee.salary,
+        branchName: null
+      })
+    }
+  });
+
+  const is_manager = not_null.sort((a, b) => {
+    if (a.branchName > b.branchName) return -1;
+    else if (a.branchName < b.branchName) return 1;
+    else  return 0;
+  });
+
+  const not_manager = is_null.sort((a, b) => {
+    if (a.firstName < b.firstName) return -1;
+    else if (a.firstName > b.firstName) return 1;
+    else  return 0;
+  });
+
+  const full_list = is_manager.concat(not_manager);
+
+  res.json(full_list.slice(0, 10));
+});
+
+app.get("/problems/9", async (req, res) => {
+  const manager = await prisma.branch.findMany({
+    select: {
+      managerSIN: true
+    }
+  });
+  
+  const employees = await prisma.employee.findMany({
+    select: {
+      sin: true,
+      firstName: true,
+      lastName: true,
+      salary: true,
+      Branch_Employee_branchNumberToBranch: {
+        select: {
+          branchName: true
+        }
+      }
+    },
+    where: {
+      salary: {
+        gt: 50000
+      }
+    },
+  });
+
+  const temp = employees.map(employee => ({
+    sin: employee.sin,
+    firstName: employee.firstName,
+    lastName: employee.lastName,
+    salary: employee.salary,
+    branchName: employee.Branch_Employee_branchNumberToBranch.branchName
+  })); 
+
+  const not_null = temp.filter(employee => 
+    manager.some(emp => 
+      emp.managerSIN == employee.sin));
+  
+  const is_null = temp.map(employee => {
+    if (!manager.some(emp => 
+      emp.managerSIN == employee.sin)) {
+      return ({
+        sin: employee.sin,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        salary: employee.salary,
+        branchName: null
+      })
+    }
+  });
+
+  const is_manager = not_null.sort((a, b) => {
+    if (a.branchName > b.branchName) return -1;
+    else if (a.branchName < b.branchName) return 1;
+    else  return 0;
+  });
+
+  const not_manager = is_null.sort((a, b) => {
+    if (a.firstName < b.firstName) return -1;
+    else if (a.firstName > b.firstName) return 1;
+    else  return 0;
+  });
+
+  const full_list = is_manager.concat(not_manager);
+
+  res.json(full_list.slice(0, 10));
+});
