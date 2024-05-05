@@ -251,3 +251,113 @@ app.get("/problems/6", async (req, res) => {
 
   res.json(formattedaccounts.slice(0, 10));
 });
+
+app.get("/problems/7", async (req, res) => {
+  const london = await prisma.customer.findMany({
+    select: {
+      Owns: true
+    },
+    where: {
+      Owns: {
+        some: {
+          Account:{
+            Branch: {
+              branchName: 'London'
+            }
+          }
+        }
+      }
+    },
+  });
+
+  const london_flat = london.flatMap(accounts => accounts.Owns.map(o => ({customerID: o.customerID, accNumber: o.accNumber})));
+
+  const NYbutnotLondon = await prisma.customer.findMany({
+    select: {
+      Owns: true
+    },
+    where: {
+      AND: [
+        {
+        Owns: {
+          some: {
+            Account:{
+              Branch: {
+                branchName: 'New York'
+              }
+            }
+          }
+        }
+        },
+        {
+          NOT: {
+          Owns: {
+            some: {
+              Account:{
+                Branch: {
+                  branchName: 'London'
+                }
+              }
+            }
+          },
+        }
+      }
+      ]
+    },
+  });
+
+  const NYbutnotLondon_flat = NYbutnotLondon.flatMap(account => account.Owns.map(own => ({customerID: own.customerID, accNumber: own.accNumber})));
+
+  // 런던에 소유권이 없어야 함
+  // do not co-own an account with another customer who owns an account at the London branch
+  const filter_accounts = NYbutnotLondon_flat.filter(account => london_flat.some(london_a => (london_a.customerID != account.customerID) && (london_a.accNumber == account.accNumber)));
+
+  const filterID = filter_accounts.map(account => account.customerID);
+
+  const filtered_accounts = await prisma.customer.findMany({
+    select: {
+      customerID: true
+    },
+    where: {
+      AND: [
+        {
+        Owns: {
+          some: {
+            Account:{
+              Branch: {
+                branchName: 'New York'
+              }
+            }
+          }
+        }
+        },
+        {
+          NOT: {
+          Owns: {
+            some: {
+              Account:{
+                Branch: {
+                  branchName: 'London'
+                }
+              }
+            }
+          },
+        }
+      },
+      {
+        NOT: {
+          customerID: { 
+            in: filterID
+          }
+        }
+      }
+      ]
+    },
+    orderBy: {
+      customerID: 'asc'
+    },
+    take: 10
+  });
+
+  res.json(filtered_accounts.slice(0, 10));
+});
