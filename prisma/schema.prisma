@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  DATABASE_URL="mysql://admin:tnfqkrtm@sparcs-mysql.cpghnwiewsdn.ap-northeast-2.rds.amazonaws.com:3306/bank"
   url      = env("DATABASE_URL")
 }
 
