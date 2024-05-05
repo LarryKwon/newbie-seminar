@@ -100,3 +100,73 @@ app.get("/problems/3", async (req, res) => {
 
   res.json(result);
 });
+
+app.get("/problems/4", async (req, res) => {
+  const london = await prisma.owns.findMany({
+    select: {
+      customerID: true
+    },
+    where: {
+      Account: {
+        Branch: {
+          branchName: 'London'
+        }
+      }
+    },
+  });
+
+  const latveria = await prisma.owns.findMany({
+    select: {
+      customerID: true
+    },
+    where: {
+      Account: {
+        Branch: {
+          branchName: 'Latveria'
+        }
+      }
+    },
+  });
+
+  const london_and_latveria = london.filter(londonCustomer => 
+    latveria.some(latveriaCustomer => latveriaCustomer.customerID == londonCustomer.customerID))
+    .map(sharedCustomer => sharedCustomer.customerID);
+
+  const result = await prisma.customer.findMany({
+    select: {
+      customerID: true,
+      income: true,
+      Owns: {
+        select: {
+          accNumber: true,
+          Account: {
+            select: {
+              branchNumber: true
+            }
+          }
+        }
+      }
+    },
+    where: {
+      income: {
+        gt: 80000
+      },
+      customerID: {
+        in: london_and_latveria
+      }
+    }
+  });
+
+  const formattedResult = result.flatMap(customer => 
+    customer.Owns.map(owns => ({
+      customerID: customer.customerID,
+      income: customer.income,
+      accNumber: owns.accNumber,
+      branchNumber: owns.Account.branchNumber,
+    }))
+  );
+  
+  res.json(formattedResult.slice(0, 10));
+  
+  // res.json(result.slice(0, 10));
+});
