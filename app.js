@@ -11,7 +11,14 @@ const axios=require('axios');
 const { orderBy, includes } = require('lodash');
 
 const ProblemList=[1,2,3,4,5,6,7,8,9,10,11,14,15,17,18];
-
+/**
+ * 전반적으로 쿼리를 자세히 나누고 app level에서 많이 처리하셨네요.
+ * 근데 데이터가 커지면 이렇게 하는 것에 어느 정도 제약이 가해질 겁니다.
+ * 결정적으로, app level에서 처리하는 것의 최대 장점은 비동기적으로 여러 개의 connection을 통해서 한 번에 쿼리를 날리는 겁니다.
+ * A,B,C 테이블에 대한 정보를 알아야하는데, 다 join해서 들고오는 게 너무 느리니, connection 3개를 써서 각각 하나씩 다 들고오고
+ * app level에서 join을 해서 처리하는 것이 더 빠를 수 있습니다.
+ * 지금 스타일대로 app-level에서 많이 처리하시려면, connection pool을 적절히 사용하셔야합니다.
+ */
 
 
 app.listen(port, () => {
@@ -22,6 +29,9 @@ app.get('/status', async (req,res) => {
   return res.status(201).json({ server:'running' });
 })
 
+/**
+ * 잘 짜셨는데, answer랑 result랑 비교하는 로직도 같이 적었으면 좋았을 거 같아요.
+ */
 app.get('/checker', async (req, res) => {
   // return res.status.json({implemented:'false'})
   let results={};
@@ -194,6 +204,11 @@ app.get('/problems/3', async (req, res) => {
 
 })
 
+
+/**
+ * 실전에서는 3중 Join으로 들어가는 정도이면 subquery로 처리하거나, 빼는 방법을 고려합니다.
+ * join 자체가 테이블 여러 개를 이어붙이는거라 N,M,K개 row가 있다면 기본적으로 NMK로 연산량이 증가한다고 생각해야하거든요.
+ */
 app.get('/problems/4', async (req, res) => {
   try{
     let result=[];
@@ -215,6 +230,11 @@ app.get('/problems/4', async (req, res) => {
         }
       }
     })
+
+    /**
+     *
+     * for 문이 제일 빠르긴 한데, map이나 forEach 같은 것들도 한 번 고려해보세요!
+     */
 
     for(const elem of customers){
       var f1=false,f2=false;
@@ -717,6 +737,23 @@ app.post('/employee/leave', async (req, res) => {
   });
   return res.status(200).json(oldEmployee);
 });
+
+/**
+ * 이 부분 전제 조건이 지금 빠진 거 같은데,
+ * 자기 자신 외에는 입금/출금이 불가능하다는 조건을 체크하는 부분이 안 보이네요. 실제로 하실 때는 다 꼼꼼히 해주셔야 하고요.
+ * 두 번째로 다음과 같은 상황도 생각할 수 있습니다.
+ *  * 1. deposit은 누구나 할 수 있습니다.
+ *  * 생각해보면 제가 남에게 송금할 때, 다른 사람 계좌에 마음대로 보낼 수 있잖아요? 지금은 deposit을 자신만 할 수 있다고 강력하게 걸어놨는데, 이게 풀리면 어떻게 될까요?
+ *  * 2. deposit이 누구나 가능하다고 하면 다음과 같은 일이 일어날 수 있습니다.
+ *  *
+ *  * 상황 A.
+ *  * 현재 4000원임
+ *  * A가 3000원을 출금하려고 함
+ *  * B는 2000원을 입금함.
+ *  * 모든 일이 일어나고 보니 잔고가 3000원이 아님
+ *  *
+ *  * A는 해당 계좌에 lock을 걸어서 해결할 수 있습니다. lock과 transaction을 걺으로써, 해당 A와 B의 순서를 sequential하게 맞춰주면 이런 일이 발생하지 않습니다.
+ */
 
 app.post('/account/:account_no/deposit', async (req, res) => {
   const body = req.body;
