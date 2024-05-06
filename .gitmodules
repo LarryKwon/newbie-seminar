@@ -1,0 +1,3 @@
+[submodule "3-Task"]
+	path = 3-Task
+	url = https://github.com/wjeongchoi/newbie_prisma.git
