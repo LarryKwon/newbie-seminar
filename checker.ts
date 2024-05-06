@@ -5,6 +5,13 @@ import lodash from 'lodash'
 
 const prisma = new PrismaClient()
 
+/**
+ *
+ * 안녕하세요, 전반적으로 봤는데, left outer join을 엄청 많이 쓰시는데, 아마 left outer join이랑 left join이랑 같은 걸겁니다.
+ * left join으로 쓰시면 조금 더 짧아지지 않을까 싶네요!
+ * 실제로도 left join이라고 많이 쓰고요.
+ *
+ */
 
 
 
@@ -19,6 +26,18 @@ function problem1() {
     income desc, lastName asc, firstName asc 
   LIMIT 10;`
 }
+
+/**
+ *  WHERE
+ *       (SELECT branchName
+ *       FROM Branch
+ *       WHERE Branch.branchNumber = e.branchNumber) = 'London'
+ *       OR
+ *       (SELECT branchName
+ *       FROM Branch
+ *       WHERE Branch.branchNumber = e.branchNumber) = 'Berlin'
+ * 이 부분 IN으로 처리하시면 안 되는건가요..? 저렇게 한 이유가 따로 있나요?
+ */
 
 function problem2() {
   return prisma.$queryRaw`
@@ -117,6 +136,12 @@ function problem4() {
   `
 }
 
+/**
+ *       a.type = 'BUS'
+ *       OR
+ *       a.type = 'SAV'
+ *       이 부분도 in으로 하면 안 되는건가요..?
+ */
 function problem5() {
   return prisma.$queryRaw`
   SELECT
