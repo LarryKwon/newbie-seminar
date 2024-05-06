@@ -4,6 +4,7 @@ app.use(express.json());
 const PORT = 3000;
 
 const { PrismaClient } = require("@prisma/client");
+const { orderBy } = require("lodash");
 const prisma = new PrismaClient();
 
 app.get("/", (req, res) => {
@@ -64,7 +65,7 @@ app.get("/problems/4", async (req, res) => {
     },
   });
 
-  const london_and_latveria = london.filter(londonCustomer => 
+  const londonLatveria = london.filter(londonCustomer => 
     latveria.some(latveriaCustomer => latveriaCustomer.customerID == londonCustomer.customerID))
     .map(sharedCustomer => sharedCustomer.customerID);
 
@@ -88,7 +89,7 @@ app.get("/problems/4", async (req, res) => {
         gt: 80000
       },
       customerID: {
-        in: london_and_latveria
+        in: londonLatveria
       }
     }
   });
@@ -177,13 +178,13 @@ app.get("/problems/7", async (req, res) => {
 });
 
 app.get("/problems/8", async (req, res) => {
-  const employeesManager = await prisma.employee.findMany({
+  const employees = await prisma.employee.findMany({
     select: {
       sin: true,
       firstName: true,
       lastName: true,
       salary: true,
-      Branch: {
+      Branch_Branch_managerSINToEmployee: {
         select: {
           branchName: true
         }
@@ -193,41 +194,285 @@ app.get("/problems/8", async (req, res) => {
       salary: {
         gt: 50000
       },
-      Branch: {
-        managerSIN: {
-          not: null
-        }
-      }
     },
-    orderBy: {
-      Branch: {
-        branchName: 'desc'
-      },
-      firstName: 'asc'
-    }
   });
 
-  const employeesNotManager = await prisma.employee.findMany({
+  const formattedEmployees = employees.map((employee) => ({
+    sin: employee.sin,
+    firstName: employee.firstName,
+    lastName: employee.lastName,
+    salary: employee.salary,
+    branchName: employee.Branch_Branch_managerSINToEmployee.length > 0 ? employee.Branch_Branch_managerSINToEmployee[0].branchName : null,
+  }));
+
+  res.sort((a, b) => a.branchName - b.branchName);
+
+  res.json(formattedEmployees.slice(0, 10));
+});
+
+app.get("/problems/9", async (req, res) => {
+  const employees = await prisma.employee.findMany({
     select: {
       sin: true,
       firstName: true,
       lastName: true,
       salary: true,
+      Branch_Branch_managerSINToEmployee: {
+        select: {
+          branchName: true
+        }
+      }
     },
     where: {
       salary: {
         gt: 50000
       },
-      Branch: {
-        managerSIN: {
-          equals: null
+    },
+  });
+
+  const formattedEmployees = employees.map((employee) => ({
+    sin: employee.sin,
+    firstName: employee.firstName,
+    lastName: employee.lastName,
+    salary: employee.salary,
+    branchName: employee.Branch_Branch_managerSINToEmployee.length > 0 ? employee.Branch_Branch_managerSINToEmployee[0].branchName : null,
+  }));
+
+  res.sort((a, b) => a.branchName - b.branchName);
+
+  res.json(formattedEmployees.slice(0, 10));
+});
+
+app.get("/problems/10", async (req, res) => {
+  /* Select the [customer ID, first name, last name, income] of customers who have
+incomes greater than $5000 and own accounts in ALL of the branches that Helen
+Morgan owns accounts in, and order by income (desc). */
+
+  const helenMorganAccounts = await prisma.owns.findMany({
+    select: {
+      accNumber: true
+    },
+    where: {
+      Account: {
+        some: {
+          Customer: {
+            firstName: "Helen",
+            lastName: "Morgan"
+          }
+        }
+      }
+    }
+  });
+
+  const helenMorganBranches = await prisma.account.findMany({
+    select: {
+      branchNumber: true
+    },
+    where: {
+      accNumber: {
+        in: helenMorganAccounts.map(account => account.accNumber)
+      }
+    }
+  });
+
+  const helenMorganBranchNumbers = helenMorganBranches.map(branch => branch.branchNumber);
+
+  const filteredCustomers = await prisma.customer.findMany({
+    select: {
+      customerID: true,
+      firstName: true,
+      lastName: true,
+      income: true,
+      Owns: {
+        select: {
+          Account: {
+            select: {
+              branchNumber: true
+            }
+          }
+        }
+      }
+    },
+    where: {
+      income: {
+        gt: 5000
+      },
+      Owns: {
+        every: {
+          Account: {
+            branchNumber: {
+              in: helenMorganBranchNumbers
+            }
+          }
         }
       }
     },
     orderBy: {
+      income: 'desc'
+    }
+  });
+
+  res.json(filteredCustomers.slice(0, 10));
+});
+
+app.get("/problems/11", async (req, res) => {
+  /* Select the [SIN, first name, last name, salary] of the lowest paid employee (or em-
+ployees) of the Berlin branch, and order by sin (asc). */
+  const berlinEmployees = await prisma.employee.findMany({
+    select: {
+      sin: true,
+      firstName: true,
+      lastName: true,
+      salary: true
+    },
+    where: {
+      Branch: {
+        branchName: "Berlin"
+      }
+    },
+    orderBy: {
+      salary: 'asc'
+    }
+  });
+
+  const lowestSalary = berlinEmployees[0].salary;
+  const lowestPaidEmployees = berlinEmployees.filter(employee => employee.salary === lowestSalary);
+
+  res.json(lowestPaidEmployees.slice(0, 10));
+});
+
+app.get("/problems/14", async (req, res) => {
+  /*Select the [sum of the employee salaries] at the Moscow branch. The result should
+contain a single number. */
+  const moscowEmployees = await prisma.employee.findMany({
+    select: {
+      salary: true
+    },
+    where: {
+      Branch: {
+        branchName: "Moscow"
+      }
+    }
+  });
+
+  const totalSalary = moscowEmployees.reduce((acc, employee) => acc + employee.salary, 0);
+
+  res.json(totalSalary.slice(0, 10));
+});
+
+app.get("/problems/15", async (req, res) => {
+  /* Select the [customer ID, first name, last name] of customers who own accounts from
+only four different types of branches, and order by last name (asc) then first name
+(asc). */
+  const customers = await prisma.customer.findMany({
+    select: {
+      customerID: true,
+      firstName: true,
+      lastName: true,
+      Owns: {
+        select: {
+          Account: {
+            select: {
+              branchNumber: true
+            }
+          }
+        }
+      }
+    },
+    orderBy: {
+      lastName: 'asc',
       firstName: 'asc'
     }
   });
+
+  const filteredCustomers = customers.filter(customer => {
+    const branchNumbers = customer.Owns.map(owns => owns.Account.branchNumber);
+    const uniqueBranchNumbers = [...new Set(branchNumbers)];
+    return uniqueBranchNumbers.length === 4;
+  });
+
+  res.json(filteredCustomers.slice(0, 10));
+});
+
+app.get("/problems/17", async (req, res) => {
+  /* Select the [customer ID, first name, last name, income, average account balance] of
+customers who have at least three accounts, and whose last names begin with S and
+contain an e (e.g. Steve), and order by customer ID (asc). */
+  const customers = await prisma.customer.findMany({
+    select: {
+      customerID: true,
+      firstName: true,
+      lastName: true,
+      income: true,
+      Owns: {
+        select: {
+          Account: {
+            select: {
+              balance: true
+            }
+          }
+        }
+      }
+    },
+    orderBy: {
+      customerID: 'asc'
+    }
+  });
+
+  const filteredCustomers = customers.filter(customer => {
+    const accountCount = customer.Owns.length;
+    const lastName = customer.lastName.toLowerCase();
+    return accountCount >= 3 && lastName.startsWith('s') && lastName.includes('e');
+  });
+
+  const formattedCustomers = filteredCustomers.map(customer => {
+    const totalBalance = customer.Owns.reduce((acc, owns) => acc + owns.Account.balance, 0);
+    const averageBalance = totalBalance / customer.Owns.length;
+    return {
+      customerID: customer.customerID,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      income: customer.income,
+      averageBalance
+    };
+  });
+
+  res.json(formattedCustomers.slice(0, 10));
+});
+
+app.get("/problems/18", async (req, res) => {
+  /* Select the [account number, balance, sum of transaction amounts] for accounts in
+the Berlin branch that have at least 10 transactions, and order by transaction sum
+(asc). */
+  const berlinAccounts = await prisma.account.findMany({
+    select: {
+      accNumber: true,
+      balance: true,
+      Transactions: {
+        select: {
+          amount: true
+        }
+      }
+    },
+    where: {
+      Branch: {
+        branchName: "Berlin"
+      }
+    }
+  });
+
+  const filteredAccounts = berlinAccounts.filter(account => account.Transactions.length >= 10);
+
+  const formattedAccounts = filteredAccounts.map(account => {
+    const totalTransactionAmount = account.Transactions.reduce((acc, transaction) => acc + transaction.amount, 0);
+    return {
+      accNumber: account.accNumber,
+      balance: account.balance,
+      totalTransactionAmount
+    };
+  });
+
+  res.json(formattedAccounts.slice(0, 10));
 });
 
 app.post("/employee/join", async (req, res) => {
