@@ -35,6 +35,13 @@ ORDER BY lastName ASC, firstName ASC
 LIMIT 10;`
 }
 
+/**
+ * Join을 쓰실 때, 일반 Join과 left Join의 차이를 알고 쓰시면 좋습니다!
+ * 특히 그냥 Join이라고 쓰게 되면 제가 알기로는 cartesian product를 계산한 후에 where 절로 거르는 걸로 알고요, 이러면 다 곱하고 where를 하는 것이기 때문에 성능이 좋지 않을 수 있습니다.
+ * 뿐만 아니라, 테이블 관계가 1:N인 경우 left join을 쓰게 되면 두 테이블이 N:M row일 때 연산량은 NM이 된다는 점을 알아주시면 좋을 것 같고요.
+ * 반대로 N:1인 경우에 left join은 총 총 연산량이 NM이 아니라, Max(N,M)이 되기 때문에 해당 부분을 고려하시면 아마 쿼리를 좀 더 효율적으로 짜시지 않을까 싶네요.
+ *
+ */
 function problem4() {
   return prisma.$queryRaw`SELECT c.customerID, c.income, a.accNumber, a.branchNumber
 FROM Owns o
@@ -77,6 +84,11 @@ ORDER BY a.accNumber ASC
 LIMIT 10;`
 }
 
+/**
+ * 여기서 where a.branchNumber = (select branchNumber from Branch where branchName = 'New York')
+ * 이 부분에서 저희가 DB 데이터가 작으니까 New York이라는 걸로 branchNumber 하나를 특정할 수 있다는 걸 알 수 있지만, 그렇지 못한 경우도 있겠죠?
+ * =보다는 in을 쓰는 것이 좋을 수도 있습니다.
+ */
 function problem7() {
   return prisma.$queryRaw`SELECT c.customerID
 FROM Customer c
