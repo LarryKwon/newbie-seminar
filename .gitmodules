@@ -1,0 +1,6 @@
+[submodule "3-Task2-1"]
+	path = 3-Task2-1
+	url = https://github.com/ChaeyeonAhn/newbie-seminar-mysql-prisma.git
+[submodule "3-Task2-2"]
+	path = 3-Task2-2
+	url = https://github.com/ChaeyeonAhn/newbie_seminar_mysql_prisma_2.git
