@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  accNumber    Int            @id
+  type         String?        @db.VarChar(3)
+  balance      String?        @db.Text
+  branchNumber Int?
+  Branch       Branch?        @relation(fields: [branchNumber], references: [branchNumber], onDelete: NoAction, onUpdate: NoAction, map: "Account_ibfk_1")
+  Owns         Owns[]
+  Transactions Transactions[]
+
+  @@index([branchNumber], map: "branchNumber")
+}
+
+model Branch {
+  branchNumber                           Int        @id
+  branchName                             String?    @db.VarChar(20)
+  managerSIN                             Int?
+  budget                                 String?    @db.Text
+  Account                                Account[]
+  Employee_Branch_managerSINToEmployee   Employee?  @relation("Branch_managerSINToEmployee", fields: [managerSIN], references: [sin], onDelete: NoAction, onUpdate: NoAction, map: "Branch_ibfk_1")
+  Employee_Employee_branchNumberToBranch Employee[] @relation("Employee_branchNumberToBranch")
+
+  @@index([managerSIN], map: "managerSIN")
+}
+
+model Customer {
+  customerID Int     @id
+  firstName  String? @db.VarChar(20)
+  lastName   String? @db.VarChar(20)
+  income     Int?
+  birthData  String? @db.VarChar(20)
+  Owns       Owns[]
+}
+
+model Employee {
+  sin                                  Int      @id
+  firstName                            String?  @db.VarChar(20)
+  lastName                             String?  @db.VarChar(20)
+  salary                               Int?
+  branchNumber                         Int?
+  Branch_Branch_managerSINToEmployee   Branch[] @relation("Branch_managerSINToEmployee")
+  Branch_Employee_branchNumberToBranch Branch?  @relation("Employee_branchNumberToBranch", fields: [branchNumber], references: [branchNumber], onDelete: NoAction, onUpdate: NoAction, map: "Employee_ibfk_1")
+
+  @@index([branchNumber], map: "branchNumber")
+}
+
+model Owns {
+  customerID Int
+  accNumber  Int
+  Customer   Customer @relation(fields: [customerID], references: [customerID], onDelete: NoAction, onUpdate: NoAction, map: "Owns_ibfk_1")
+  Account    Account  @relation(fields: [accNumber], references: [accNumber], onDelete: NoAction, onUpdate: NoAction, map: "Owns_ibfk_2")
+
+  @@id([customerID, accNumber])
+  @@index([accNumber], map: "accNumber")
+}
+
+model Transactions {
+  accNumber   Int
+  transNumber Int
+  amount      String? @db.Text
+  Account     Account @relation(fields: [accNumber], references: [accNumber], onDelete: NoAction, onUpdate: NoAction, map: "Transactions_ibfk_1")
+
+  @@id([accNumber, transNumber])
+}
