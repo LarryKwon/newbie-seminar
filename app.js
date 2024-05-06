@@ -7,11 +7,19 @@ const axios = require('axios');
 const fs = require('node:fs');
 const lodash = require('lodash');
 
-// For powershell: $env:DATABASE_URL="mysql://admin:tnfqkrtm@sparcs-mysql.cpghnwiewsdn.ap-northeast-2.rds.amazonaws.com:3306/teddybear"
-
 app.get('/status', async (req, res) => {
     res.status(200).json({ isOnline: true });
 });
+
+/**
+ * 전반적으로 코드 가독성이... 조금 떨어져서요.. flag 같은 것도 보이고, s,o 이런 걸 쓰셔서 잘 이해가 안 되는 부분이 있네요
+ * 같이 고려하셔서 코드 짜시면 좀 더 좋을 거 같고, 혹시 시스템 쪽 코드 주로 짜셨나요...? 변수 이름이 시스템 코드 보는 거 같아 여쭤봅니다.
+ * 그 다음에 js에서 var는 잘 안 쓰시는게 좋습니다.
+ * 지금이야 개별적인 함수니까 상관이 없는데 let,var,const는 재선이 되고 안 되고의 문제를 넘어서 스코프 문제까지 이어져서요. 한 번 찾아보시면 좋을 것 같습니다. (호이스팅 개념을 찾아보시면 좋을 거 같아요!)
+ * https://www.freecodecamp.org/korean/news/var-let-constyi-caijeomeun/
+ *
+ * @type {number[]}
+ */
 
 const ProblemList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 17, 18];
 
@@ -78,6 +86,16 @@ app.get('/problems/1', async (req, res) => {
         return res.status(500).json({});
     }
 });
+
+/**
+ * 비즈니스 로직에서 이런 경우로 짜시면 DB Select가 동기적으로 일어나서 좀 느리고요.
+ * 좋은 방법은 비동기로 두 개를 한 꺼번에 들고오는 겁니다.
+ * await Promise.all([london, latveria]) 이런 식으로 Promise.all을 쓰면 됩니다.
+ * const london, latveria = await Promise.all([
+ * prisma.owns.findMany({}), prisma.owns.findmany({})])
+ * 아마 이런 식으로 짜면 되는 걸로 아는데, 갑자기 쓰려니까 잘 기억이 안 나네요.
+ * otl 서버(nest버전) 코드에 이런 식의 접근이 많이 있으니 참고해보세요!
+ */
 
 app.get('/problems/2', async (req, res) => {
     try {
@@ -369,6 +387,14 @@ app.get('/problems/6', async (req, res) => {
     }
 });
 
+
+/**
+ * 이거 이렇게 짜시면..... 안 됩니다.
+ * 결과는 맞을 수 있는데, 지금 join이 너무 많아요. 지금이야 데이터셋이 작아서 상관없는데, 이게 지금 몇 중 join인지..
+ * 실전에서는 보통 3중 join 넘어가면, 나눠서 들고오던가 subquery로 해결하던가 합니다.
+ * 혹시 이렇게 한 이유가 따로 있을까요?
+ *
+ */
 app.get('/problems/7', async (req, res) => {
     try {
         const q = await prisma.customer.findMany({
@@ -756,6 +782,17 @@ app.post('/employee/leave', async (req, res) => {
     return res.status(200).json(oldEmployee);
 });
 
+/**
+ * 출금/입금 시 자신의 계좌에만 할 수 있다고 했었는데, 해당 조건이 안 보여서요. 실전에서는 문제 조건 꼼꼼히 잘 보시고, 로직 짜주시면 좋을 거 같아요!
+ * 누군가가 코드를 짰는데, 문제 조건을 잘못 구현한건 상관이 없는데 문제 조건을 아예 구현하지 않은 것까지 서로 신경써야하면 서로 간의 신뢰가 떨어지는 상황으로 가지 않을까요??
+ */
+
+/**
+ * 그 다음에 increment, decrement 함수 사용하셨는데, 한 번 쿼리 직접 찍어보셔도 좋을 거 같아요
+ * prisma가 실행시키는 쿼리는 prisma.$on 이런식으로 할 수 있어서요. prisma  query loggin으로 검색하셔서 찾아보시면 될 거 같고,
+ * increment가 실제로 쿼리에서 lock이랑 함께 단일 update로 나가는지 아니면 select 후 1더한 값을 update로 나가는지 등등 쿼리가 어떻게 나가는지 확인하고 쓸지 말지 고민해보시면 좋을 거 같아요!
+ * 쓰면 왜 쓰는게 좋고, 어떨 때 쓰는지 등등
+ */
 app.post('/account/:account_no/deposit', async (req, res) => {
     const body = req.body;
     const account_no = parseInt(req.params.account_no);
