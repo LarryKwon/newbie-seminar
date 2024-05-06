@@ -5,7 +5,15 @@ import lodash from 'lodash'
 
 const prisma = new PrismaClient()
 
-
+/**
+ * Join을 약간 혼용해서 쓰시는 거 같은데,
+ * 기본적으로 Left Join
+ * Inner Join
+ * Cartesian Join이 있습니다.
+ * 이 중 맨 마지막 Cartesian Join이 일반적으로 지금 사용하시는 Join이고요,
+ * Left Join이 Left outer join으로 쓰신 겁니다.
+ * 각각 1:N, N:1 상황에서 어떤 Join을 쓰느냐에 따라 연산량이 달라지기 때문에 이 부분 고려하셔서 찾아보시면 될 것 같습니다.
+ */
 
 
 function problem1() {
@@ -72,6 +80,8 @@ function problem6() {
   ORDER BY A.accNumber
   LIMIT 10;`
 }
+
+
 
 function problem7() {
   return prisma.$queryRaw`

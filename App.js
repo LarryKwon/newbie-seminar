@@ -2,7 +2,19 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 const PORT = 3000;
+/**
+ * prisma를 이용한 express 서버를 짤 때는 typescript로 하는 것이 좋습니다.
+ * prisma의 장점이, 정의된 타입을 기반으로 객체 탐색하듯이 쿼리를 함수처럼 짤 수 있다는 것인데, javascript로 하면 그게 어렵습니다.
+ * 타입이 맞춰지는 typescript를 권장합니다.
+ * @type {*|Express}
+ */
 
+
+/**
+ *
+ * 실전에서는
+ * 3중 join 정도로 깊어지면, subquery 쓰는 걸 고려해봄직 합니다. 지금 3중 join이 없어서 딱히 드릴 말씀은 없네요!
+ */
 const { PrismaClient } = require("@prisma/client");
 const { orderBy } = require("lodash");
 const prisma = new PrismaClient();
@@ -37,6 +49,17 @@ app.get("/problems/1", async (req, res) => {
   });
   res.json(result);
 });
+
+/**
+ * 4번 같은 경우에 london, latveria 이거 두 개를 sequential 하게 가져오는 식으로 짜셨는데, 비즈니스 로직에서 이런 경우로 짜시면 DB Select가 동기적으로 일어나서 좀 느리고요.
+ * 좋은 방법은 비동기로 두 개를 한 꺼번에 들고오는 겁니다.
+ * await Promise.all([london, latveria]) 이런 식으로 Promise.all을 쓰면 됩니다.
+ * const london, latveria = await Promise.all([
+ * prisma.owns.findMany({}), prisma.owns.findmany({})])
+ * 아마 이런 식으로 짜면 되는 걸로 아는데, 갑자기 쓰려니까 잘 기억이 안 나네요.
+ * otl 서버(nest버전) 코드에 이런 식의 접근이 많이 있으니 참고해보세요!
+ *
+ **/
 
 app.get("/problems/4", async (req, res) => {
   const london = await prisma.owns.findMany({
@@ -509,6 +532,24 @@ app.delete("/employee/leave", async (req, res) => {
     res.status(500).send("너 앉아!" + error.message);
   }
 });
+
+/**
+ *
+ * prisma로 작업하시는 거는 전반적으로 문제될 게 없어서 리뷰는 따로 안 남겼고요.
+ * 아랫 부분 정도만 추가로 생각해보시면 좋을 거 같아 남깁니다.
+ * 1. deposit은 누구나 할 수 있습니다.
+ * 생각해보면 제가 남에게 송금할 때, 다른 사람 계좌에 마음대로 보낼 수 있잖아요? 지금은 deposit을 자신만 할 수 있다고 강력하게 걸어놨는데, 이게 풀리면 어떻게 될까요?
+ * 2. deposit이 누구나 가능하다고 하면 다음과 같은 일이 일어날 수 있습니다.
+ *
+ * 상황 A.
+ * 현재 4000원임
+ * A가 3000원을 출금하려고 함
+ * B는 2000원을 입금함.
+ * 모든 일이 일어나고 보니 잔고가 3000원이 아님
+ *
+ * A는 해당 계좌에 lock을 걸어서 해결할 수 있습니다. lock과 transaction을 걺으로써, 해당 A와 B의 순서를 sequential하게 맞춰주면 이런 일이 발생하지 않습니다.
+ */
+
 
 app.post("/account/:account_no/deposit", async (req, res) => {
   const accountNumber = parseInt(req.params.account_no);
