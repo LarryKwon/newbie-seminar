@@ -16,7 +16,7 @@ router.post('/join', async (req, res) => {
                 branchNumber: input["branchNumber"],
             }
         })
-        res.status(200).json({success: true, msg: `이 팀은 미친듯이 일하는 일꾼들로 이루어진 광전사 설탕 노움 조합이다.
+        res.status(201).json({success: true, msg: `이 팀은 미친듯이 일하는 일꾼들로 이루어진 광전사 설탕 노움 조합이다.
         분위기에 적응하기는 쉽지 않지만 아주 화력이 좋은 강력한 조합인거 같다.`});
     } catch(e) {
         res.status(500).json({error: e});
