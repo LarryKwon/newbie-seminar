@@ -1,9 +1,25 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+/**
+ * prisma를 이용한 express 서버를 짤 때는 typescript로 하는 것이 좋습니다.
+ * prisma의 장점이, 정의된 타입을 기반으로 객체 탐색하듯이 쿼리를 함수처럼 짤 수 있다는 것인데, javascript로 하면 그게 어렵습니다.
+ * 타입이 맞춰지는 typescript를 권장합니다.
+ * @type {*|Express}
+ */
+
+
 
 const app = express();
 app.use(express.json());
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+});
+prisma.$on('query', e => {
+  console.log('Query: ' + e.query)
+  console.log('Params: ' + e.params)
+  console.log('Duration: ' + e.duration + 'ms')
+})
+
 const PORT = 3000;
 
 app.get("/", (req, res) => {
@@ -101,6 +117,17 @@ app.get("/problems/3", async (req, res) => {
   res.json(result);
 });
 
+
+/**
+ * 4번 같은 경우에 london, latveria 이거 두 개를 sequential 하게 가져오는 식으로 짜셨는데, 비즈니스 로직에서 이런 경우로 짜시면 DB Select가 동기적으로 일어나서 좀 느리고요.
+ * 좋은 방법은 비동기로 두 개를 한 꺼번에 들고오는 겁니다.
+ * await Promise.all([london, latveria]) 이런 식으로 Promise.all을 쓰면 됩니다.
+ * const london, latveria = await Promise.all([
+ * prisma.owns.findMany({}), prisma.owns.findmany({})])
+ * 아마 이런 식으로 짜면 되는 걸로 아는데, 갑자기 쓰려니까 잘 기억이 안 나네요.
+ * otl 서버(nest버전) 코드에 이런 식의 접근이 많이 있으니 참고해보세요!
+ *
+ */
 app.get("/problems/4", async (req, res) => {
   const london = await prisma.owns.findMany({
     select: {
@@ -430,6 +457,9 @@ app.get("/problems/8", async (req, res) => {
   res.json(full_list.slice(0, 10));
 });
 
+/**
+ * 얘도 동시에 manager랑 employee를 들고오면 좋겠죠?
+ */
 app.get("/problems/9", async (req, res) => {
   const manager = await prisma.branch.findMany({
     select: {
