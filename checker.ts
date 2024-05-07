@@ -10,15 +10,45 @@ const prisma = new PrismaClient()
 
 
 function problem1() {
-  return prisma.$queryRaw`SELECT firstName, lastName, income  FROM Customer  WHERE income <= 60000 AND income >= 50000  ORDER BY income DESC, lastName ASC, firstName ASC  LIMIT 10;`
+  return prisma.$queryRaw`SELECT firstName,
+  lastName, income  FROM Customer  WHERE income <= 60000 AND income >= 50000  ORDER BY income DESC, lastName ASC, firstName ASC  LIMIT 10;`
 }
 
 function problem2() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT 
+    e.sin,
+    b.branchName,
+    e.salary,
+    CAST((e2.salary - e.salary) AS CHAR(10)) AS "Salary Diff"
+  FROM 
+    Employee e
+  JOIN 
+    Branch b ON e.branchNumber = b.branchNumber
+  JOIN
+    Employee e2 ON e2.sin = b.managerSIN
+  WHERE 
+    b.branchName IN ('London', 'Berlin')
+  ORDER BY 
+    e2.salary - e.salary DESC
+  LIMIT 10;
+  `
 }
 
 function problem3() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT
+    firstName, lastName, income
+  FROM
+    Customer c
+  WHERE
+    income >= ALL (
+      SELECT income * 2
+      FROM Customer
+      WHERE lastName = 'Butler'
+    )
+  ORDER BY
+    lastName ASC, firstName ASC
+  LIMIT 10;
+  `
 }
 
 function problem4() {
