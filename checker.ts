@@ -52,7 +52,45 @@ function problem3() {
 }
 
 function problem4() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT 
+    o.customerID, c.income, o.accNumber, a.branchNumber
+  FROM
+    Customer c
+  JOIN
+    Owns o ON o.customerID = c.customerID
+  JOIN
+    Account a ON o.accNumber = a.accNumber
+  WHERE
+    c.income > 80000
+    AND EXISTS (
+      SELECT 1
+      FROM 
+        Owns o2
+      JOIN
+        Account a2 ON o2.accNumber = a2.accNumber
+      JOIN
+        Branch b2 ON a2.branchNumber = b2.branchNumber
+      WHERE 
+        o2.customerID = c.customerID
+        AND b2.branchName IN ('London', 'Latveria')
+    )
+    AND EXISTS (
+      SELECT 1
+      FROM 
+          Owns o3
+      JOIN
+          Account a3 ON o3.accNumber = a3.accNumber
+      JOIN
+          Branch b3 ON a3.branchNumber = b3.branchNumber
+      WHERE 
+          o3.customerID = c.customerID
+          AND b3.branchName = 'Latveria'
+  )
+    ORDER BY 
+      c.customerID ASC, o.accNumber ASC
+    
+    LIMIT 10;  
+    `
 }
 
 function problem5() {
