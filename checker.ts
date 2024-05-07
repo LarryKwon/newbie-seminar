@@ -117,7 +117,22 @@ function problem5() {
 }
 
 function problem6() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT
+    branchName, accNumber, balance
+  FROM
+    Account a
+  JOIN
+    Branch b ON a.branchNumber = b.branchNumber
+  JOIN
+    Employee e ON b.managerSIN = e.SIN
+  WHERE
+    a.balance > 100000
+    AND e.firstName = 'Phillip'
+    AND e.lastName = 'Edwards'
+  ORDER BY
+    a.accNumber ASC
+  LIMIT 10;
+    `
 }
 
 function problem7() {
