@@ -58,7 +58,7 @@ function problem4() {
           WHERE branchName IN ('London', 'Latveria')
       )
     GROUP BY C.customerID
-    HAVING COUNT(DISTINCT A.branchNumber) = 2 -- Ensures the customer has accounts in both branches
+    HAVING COUNT(DISTINCT A.branchNumber) = 2 
   )
     SELECT C.customerID, C.income, O.accNumber, A.branchNumber
     FROM Customer C
@@ -74,7 +74,7 @@ function problem5() {
     SELECT C.customerID, A.type, A.accNumber, A.balance
     FROM Customer C
     JOIN Owns O ON C.customerID = O.customerID
-    JOIN Account A ON O.accNUmber = A.accNumber
+    JOIN Account A ON O.accNumber = A.accNumber
     WHERE A.type IN ('BUS', 'SAV')
     ORDER BY C.customerID, A.type, A.accNumber
     LIMIT 10
@@ -139,7 +139,19 @@ function problem8() {
 }
 
 function problem9() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`
+  SELECT E.sin, E.firstName, E.lastName, E.salary,
+    (
+      SELECT B.branchName
+      FROM Branch B
+      WHERE B.managerSIN = E.sin
+      LIMIT 1
+    ) AS branchName
+  FROM Employee E
+  WHERE E.salary > 50000
+  ORDER BY branchName DESC, E.firstName ASC
+  LIMIT 10;
+  `
 }
 
 function problem10() {
