@@ -133,7 +133,33 @@ function problem6() {
 }
 
 function problem7() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT DISTINCT c.customerID
+  FROM Customer c
+  JOIN Owns o ON c.customerID = o.customerID
+  JOIN Account a ON o.accNumber = a.accNumber
+  JOIN Branch b ON a.branchNumber = b.branchNumber
+  WHERE b.branchName = 'New York'
+  AND c.customerID NOT IN (
+      SELECT c1.customerID
+      FROM Customer c1
+      JOIN Owns o1 ON c1.customerID = o1.customerID
+      JOIN Account a1 ON o1.accNumber = a1.accNumber
+      JOIN Branch b1 ON a1.branchNumber = b1.branchNumber
+      WHERE b1.branchName = 'London'
+  )
+  AND NOT EXISTS (
+      SELECT 1
+      FROM Owns o2
+      JOIN Account a2 ON o2.accNumber = a2.accNumber
+      JOIN Customer c2 ON o2.customerID = c2.customerID
+      WHERE a2.branchNumber = (
+          SELECT branchNumber
+          FROM Branch
+          WHERE branchName = 'London'
+      ) AND c.customerID = c2.customerID
+  )
+  ORDER BY c.customerID ASC  
+  LIMIT 10;`
 }
 
 function problem8() {
@@ -161,7 +187,35 @@ LIMIT 10;
 }
 
 function problem10() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT c.customerID, c.firstName, c.lastName, c.income
+  FROM Customer c
+  JOIN Owns o ON c.customerID = o.customerID
+  JOIN Account a ON o.accNumber = a.accNumber
+  WHERE c.income > 5000
+  AND NOT EXISTS (
+      SELECT b.branchNumber
+      FROM Branch b
+      JOIN Account a2 ON b.branchNumber = a2.branchNumber
+      JOIN Owns o2 ON a2.accNumber = o2.accNumber
+      JOIN Customer c2 ON o2.customerID = c2.customerID
+      WHERE c2.firstName = 'Helen' AND c2.lastName = 'Morgan'
+      AND NOT EXISTS (
+          SELECT 1
+          FROM Owns o3
+          WHERE o3.customerID = c.customerID AND o3.accNumber = a.accNumber
+      )
+  )
+  GROUP BY c.customerID, c.firstName, c.lastName, c.income
+  HAVING COUNT(DISTINCT a.branchNumber) = (
+      SELECT COUNT(DISTINCT b2.branchNumber)
+      FROM Branch b2
+      JOIN Account a3 ON b2.branchNumber = a3.branchNumber
+      JOIN Owns o3 ON a3.accNumber = o3.accNumber
+      JOIN Customer c3 ON o3.customerID = c3.customerID
+      WHERE c3.firstName = 'Helen' AND c3.lastName = 'Morgan'
+  )
+  ORDER BY c.income DESC
+  LIMIT 10;`
 }
 
 function problem11() {
@@ -185,25 +239,18 @@ function problem11() {
 }
 
 function problem14() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT CAST(SUM(salary) AS CHAR(10)) AS "sum of employees salaries"
+  FROM Employee
+  WHERE branchNumber = (
+      SELECT branchNumber
+      FROM Branch
+      WHERE branchName = 'Moscow'
+  );
+  `
 }
 
 function problem15() {
-  return prisma.$queryRaw`SELECT c.customerID, c.firstName, c.lastName
-  FROM Customer c
-  JOIN Owns o ON c.customerID = o.customerID
-  JOIN Account a ON o.accNumber = a.accNumber
-  JOIN (
-      SELECT c.customerID
-      FROM Customer c
-      JOIN Owns o ON c.customerID = o.customerID
-      JOIN Account a ON o.accNumber = a.accNumber
-      JOIN Branch b ON a.branchNumber = b.branchNumber
-      GROUP BY c.customerID
-      HAVING COUNT(DISTINCT b.branchName) = 4
-  ) AS four_branches ON c.customerID = four_branches.customerID
-  ORDER BY c.lastName ASC, c.firstName ASC
-  LIMIT 10;`
+  return prisma.$queryRaw`select * from Customer`
 }
 
 
