@@ -6,9 +6,6 @@ import lodash from 'lodash'
 const prisma = new PrismaClient()
 
 
-
-
-
 function problem1() {
   return prisma.$queryRaw`SELECT firstName,
   lastName, income  FROM Customer  WHERE income <= 60000 AND income >= 50000  ORDER BY income DESC, lastName ASC, firstName ASC  LIMIT 10;`
@@ -140,11 +137,27 @@ function problem7() {
 }
 
 function problem8() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT e.sin, e.firstName, e.lastName, e.salary,
+  CASE
+      WHEN e.sin = b.managerSIN THEN b.branchName
+      ELSE NULL
+  END AS branchName
+FROM Employee e
+LEFT JOIN Branch b ON e.branchNumber = b.branchNumber
+WHERE e.salary > 50000
+ORDER BY branchName DESC, e.firstName ASC
+LIMIT 10;
+  `
 }
 
 function problem9() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT e.sin, e.firstName, e.lastName, e.salary,
+  (SELECT branchName FROM Branch WHERE managerSIN = e.sin) AS branchName
+FROM Employee e
+WHERE e.salary > 50000
+ORDER BY branchName DESC, e.firstName ASC
+LIMIT 10;
+`
 }
 
 function problem10() {
@@ -152,7 +165,23 @@ function problem10() {
 }
 
 function problem11() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT sin, firstName, lastName, salary
+  FROM Employee
+  WHERE branchNumber = (
+      SELECT branchNumber
+      FROM Branch
+      WHERE branchName = 'Berlin'
+  )
+  AND salary = (
+      SELECT MIN(salary)
+      FROM Employee
+      WHERE branchNumber = (
+          SELECT branchNumber
+          FROM Branch
+          WHERE branchName = 'Berlin'
+      )
+  )
+  ORDER BY sin ASC;`
 }
 
 function problem14() {
@@ -160,7 +189,21 @@ function problem14() {
 }
 
 function problem15() {
-  return prisma.$queryRaw`select * from Customer`
+  return prisma.$queryRaw`SELECT c.customerID, c.firstName, c.lastName
+  FROM Customer c
+  JOIN Owns o ON c.customerID = o.customerID
+  JOIN Account a ON o.accNumber = a.accNumber
+  JOIN (
+      SELECT c.customerID
+      FROM Customer c
+      JOIN Owns o ON c.customerID = o.customerID
+      JOIN Account a ON o.accNumber = a.accNumber
+      JOIN Branch b ON a.branchNumber = b.branchNumber
+      GROUP BY c.customerID
+      HAVING COUNT(DISTINCT b.branchName) = 4
+  ) AS four_branches ON c.customerID = four_branches.customerID
+  ORDER BY c.lastName ASC, c.firstName ASC
+  LIMIT 10;`
 }
 
 
