@@ -5,7 +5,6 @@ export class ProblemService {
     constructor(private util: Util) {};
 
     async solve (id: number): Promise<any> {
-        console.log('problem solve for id:', id);
         switch (id) {
             case 1:
                 return this.problem1 ();
@@ -702,7 +701,6 @@ export class ProblemService {
 
         for (const transaction of transactions) {
             const accNumber = transaction.Account.accNumber;
-            console.log(accNumber);
 
             if (!transactionMap.has(accNumber)) {
                 transactionMap.set(accNumber, {
@@ -734,3 +732,5 @@ export class ProblemService {
         }).slice(0, 10);
     }
 }
+
+export default ProblemService;

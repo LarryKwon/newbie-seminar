@@ -45,7 +45,7 @@ export class AccountService {
             });
 
             return updatedBalance;
-        });
+        }, { isolationLevel: 'Serializable' }, );
     }
 
     async withdraw ({ accNumber, customerID, amount, }: {
@@ -96,6 +96,6 @@ export class AccountService {
             });
 
             return updatedBalance;
-        });
+        }, { isolationLevel: 'Serializable' }, );
     };
 }

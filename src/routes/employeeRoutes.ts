@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { EmployeeService } from '../services/employeeService';
+import EmployeeService from '../services/employeeService';
 
 const employeeRouter = Router();
 

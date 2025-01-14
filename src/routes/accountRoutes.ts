@@ -28,3 +28,5 @@ accountRouter.post('/account/:account_no/withdraw', async (req, res) => {
         res.status(500).send({ message: e.message });
     }
 });
+
+export default accountRouter;

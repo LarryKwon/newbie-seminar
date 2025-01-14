@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ProblemService } from "../services/problemService";
+import ProblemService from  "../services/problemService";
 import Util from "../util";
 
 const problemRouter = Router();
@@ -10,7 +10,6 @@ problemRouter.get('/:id', async (req, res) => {
     try {
         const id = Number(req.params.id);
         const result = await problemService.solve(id);
-        console.log(result);
         res.send(result);
     } catch (e) {
         console.error(e);
